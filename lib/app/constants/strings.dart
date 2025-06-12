@@ -1,3 +1,4 @@
 class AppStrings {
-  static String baseUrl = "http://192.168.216.73:8080/api/";
+  static String baseUrl = "https://ds.capiroso.site/api/";
+  static String imageUrl = "https://ds.capiroso.site/storage/";
 }

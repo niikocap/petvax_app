@@ -9,172 +9,38 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:petvax/app/components/custom_menu.dart';
-
-// Model Classes
-class Pet {
-  final int id;
-  final String name;
-  final String type;
-  final String age;
-  final String image;
-  final bool vaccinated;
-  final String lastBooking;
-
-  Pet({
-    required this.id,
-    required this.name,
-    required this.type,
-    required this.age,
-    required this.image,
-    required this.vaccinated,
-    required this.lastBooking,
-  });
-}
-
-class OwnerData {
-  final String name;
-  final String location;
-  final String phone;
-  final String email;
-  final String joinDate;
-  final int totalBookings;
-  final double rating;
-  final int reviewCount;
-  final String avatar;
-
-  OwnerData({
-    required this.name,
-    required this.location,
-    required this.phone,
-    required this.email,
-    required this.joinDate,
-    required this.totalBookings,
-    required this.rating,
-    required this.reviewCount,
-    required this.avatar,
-  });
-}
-
-// Controller
-class PetOwnerController extends GetxController {
-  final RxString activeTab = 'pets'.obs;
-
-  final ownerData = OwnerData(
-    name: "Master Aki",
-    location: "Downtown, Singapore",
-    phone: "+65 9123 4567",
-    email: "sarah.johnson@email.com",
-    joinDate: "March 2023",
-    totalBookings: 47,
-    rating: 4.9,
-    reviewCount: 23,
-    avatar:
-        "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
-  );
-
-  final pets = <Pet>[
-    Pet(
-      id: 1,
-      name: "Buddy",
-      type: "Golden Retriever",
-      age: "3 years",
-      image:
-          "https://images.unsplash.com/photo-1552053831-71594a27632d?w=200&h=200&fit=crop",
-      vaccinated: true,
-      lastBooking: "2 days ago",
-    ),
-    Pet(
-      id: 2,
-      name: "Luna",
-      type: "British Shorthair",
-      age: "2 years",
-      image:
-          "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=200&h=200&fit=crop",
-      vaccinated: true,
-      lastBooking: "1 week ago",
-    ),
-    Pet(
-      id: 3,
-      name: "Max",
-      type: "French Bulldog",
-      age: "4 years",
-      image:
-          "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=200&h=200&fit=crop",
-      vaccinated: true,
-      lastBooking: "3 days ago",
-    ),
-  ];
-
-  void changeTab(String tab) {
-    activeTab.value = tab;
-  }
-
-  void editProfile() {
-    Get.snackbar(
-      'Edit Profile',
-      'Profile editing functionality',
-      backgroundColor: Colors.blue.shade50,
-      colorText: Colors.blue.shade700,
-      snackPosition: SnackPosition.TOP,
-    );
-  }
-
-  void viewBookings() {
-    Get.snackbar(
-      'My Bookings',
-      'Viewing bookings functionality',
-      backgroundColor: Colors.purple.shade50,
-      colorText: Colors.purple.shade700,
-      snackPosition: SnackPosition.TOP,
-    );
-  }
-
-  void addPet() {
-    Get.snackbar(
-      'Add Pet',
-      'Add new pet functionality',
-      backgroundColor: Colors.green.shade50,
-      colorText: Colors.green.shade700,
-      snackPosition: SnackPosition.TOP,
-    );
-  }
-
-  void editPet(Pet pet) {
-    Get.snackbar(
-      'Edit Pet',
-      'Editing ${pet.name}',
-      backgroundColor: Colors.orange.shade50,
-      colorText: Colors.orange.shade700,
-      snackPosition: SnackPosition.TOP,
-    );
-  }
-}
+import 'package:petvax/app/services/storage_service.dart';
+import 'package:petvax/screens/all/profile/profile_cb.dart';
 
 // Main Screen
-class PetOwnerProfileScreen extends StatelessWidget {
-  PetOwnerProfileScreen({Key? key}) : super(key: key);
-
-  final PetOwnerController controller = Get.put(PetOwnerController());
+class PetOwnerProfileScreen extends GetView<PetOwnerController> {
+  const PetOwnerProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildHeader(),
-            _buildActionButtons(),
-            _buildContactInfo(),
-            _buildTabs(),
-            Obx(
-              () =>
-                  controller.activeTab.value == 'pets'
-                      ? _buildPetsList()
-                      : _buildFavorites(),
+      body: Obx(
+        () => switch (controller.view.value) {
+          ProfileView.loading => Center(child: CircularProgressIndicator()),
+          ProfileView.loaded => SingleChildScrollView(
+            child: Column(
+              children: [
+                _buildHeader(),
+                _buildActionButtons(),
+                _buildContactInfo(),
+                _buildTabs(),
+                Obx(
+                  () =>
+                      controller.activeTab.value == 'pets'
+                          ? _buildPetsList()
+                          : _buildFavorites(),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          ProfileView.error => Center(child: Text('Failed to load profile')),
+        },
       ),
       floatingActionButton: CustomMenu(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -207,22 +73,45 @@ class PetOwnerProfileScreen extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      Get.back();
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(8.w),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12.r),
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Get.back();
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(8.w),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: Icon(
+                            Icons.arrow_back_rounded,
+                            color: Colors.white,
+                            size: 20.w,
+                          ),
+                        ),
                       ),
-                      child: Icon(
-                        Icons.arrow_back_rounded,
-                        color: Colors.white,
-                        size: 20.w,
+                      SizedBox(width: 5.w),
+                      GestureDetector(
+                        onTap: () async {
+                          await Storage.deleteUser();
+                          Get.offAndToNamed('/auth');
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(8.w),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: Icon(
+                            Icons.logout_rounded,
+                            color: Colors.white,
+                            size: 20.w,
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),
@@ -243,7 +132,7 @@ class PetOwnerProfileScreen extends StatelessWidget {
                             width: 4.w,
                           ),
                           image: DecorationImage(
-                            image: NetworkImage(controller.ownerData.avatar),
+                            image: NetworkImage(controller.user!.avatar),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -279,7 +168,7 @@ class PetOwnerProfileScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          controller.ownerData.name,
+                          controller.user!.name,
                           style: GoogleFonts.poppins(
                             color: Colors.white,
                             fontSize: 24.sp,
@@ -296,7 +185,7 @@ class PetOwnerProfileScreen extends StatelessWidget {
                             ),
                             SizedBox(width: 4.w),
                             Text(
-                              controller.ownerData.location,
+                              controller.user!.address,
                               style: GoogleFonts.poppins(
                                 color: Colors.white.withOpacity(0.8),
                                 fontSize: 14.sp,
@@ -305,35 +194,6 @@ class PetOwnerProfileScreen extends StatelessWidget {
                           ],
                         ),
                         SizedBox(height: 8.h),
-                        Row(
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.calendar_month_rounded,
-                                  color: Colors.white.withOpacity(0.8),
-                                  size: 16.w,
-                                ),
-                                // SizedBox(width: 4.w),
-                                // Text(
-                                //   '${controller.ownerData.rating} (${controller.ownerData.reviewCount})',
-                                //   style: GoogleFonts.poppins(
-                                //     color: Colors.white.withOpacity(0.8),
-                                //     fontSize: 14.sp,
-                                //   ),
-                                // ),
-                              ],
-                            ),
-                            SizedBox(width: 5.w),
-                            Text(
-                              'Member since ${controller.ownerData.joinDate}',
-                              style: GoogleFonts.poppins(
-                                color: Colors.white.withOpacity(0.8),
-                                fontSize: 14.sp,
-                              ),
-                            ),
-                          ],
-                        ),
                       ],
                     ),
                   ),
@@ -354,7 +214,7 @@ class PetOwnerProfileScreen extends StatelessWidget {
                       child: Column(
                         children: [
                           Text(
-                            '${controller.ownerData.totalBookings}',
+                            'tempo: 0',
                             style: GoogleFonts.poppins(
                               color: Colors.white,
                               fontSize: 24.sp,
@@ -546,7 +406,7 @@ class PetOwnerProfileScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      controller.ownerData.phone,
+                      controller.user!.phone,
                       style: GoogleFonts.poppins(
                         color: Colors.grey.shade900,
                         fontSize: 14.sp,
@@ -584,7 +444,7 @@ class PetOwnerProfileScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      controller.ownerData.email,
+                      controller.user!.email,
                       style: GoogleFonts.poppins(
                         color: Colors.grey.shade900,
                         fontSize: 14.sp,

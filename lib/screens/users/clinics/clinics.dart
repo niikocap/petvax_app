@@ -35,8 +35,8 @@ class Clinics extends GetView<ClinicsController> {
     return SingleChildScrollView(
       child: RefreshIndicator(
         onRefresh: () async {
-          await Future.delayed(Duration(seconds: 1));
-          print("refreshed");
+          controller.searchQuery.text = "";
+          await controller.settings.fetchClinics();
         },
         child: Column(
           children: [
@@ -79,7 +79,71 @@ class Clinics extends GetView<ClinicsController> {
                       Row(
                         children: [
                           GestureDetector(
-                            onTap: () {},
+                            onTap: () {
+                              CustomBottomsheet(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    CustomText(
+                                      text: 'Filter Clinics',
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    SizedBox(height: 15.h),
+
+                                    // Sort options
+                                    CustomDropdown(
+                                      items: ['Nearest First', 'A-Z', 'Z-A'],
+                                      initialItem: controller.currentSort.value,
+                                      onChanged: (val) {
+                                        controller.sortClinics(val);
+                                      },
+                                      hintText: 'Sort by',
+                                      decoration: CustomDropdownDecoration(
+                                        closedFillColor: Colors.grey[200],
+                                        headerStyle: GoogleFonts.poppins(),
+                                        hintStyle: GoogleFonts.poppins(),
+                                        listItemStyle: GoogleFonts.poppins(),
+                                      ),
+                                    ),
+
+                                    SizedBox(height: 15.h),
+
+                                    // Operation status filter
+                                    Obx(
+                                      () => CheckboxListTile(
+                                        value: controller.showOpenOnly.value,
+                                        onChanged: (val) {
+                                          controller.showOpenOnly.value =
+                                              val ?? false;
+                                          controller.filterOpenClinics();
+                                        },
+                                        title: CustomText(
+                                          text: 'Show Open Clinics Only',
+                                        ),
+                                        controlAffinity:
+                                            ListTileControlAffinity.leading,
+                                      ),
+                                    ),
+                                    SizedBox(height: 15.h),
+
+                                    // Apply filters button
+                                    GradientButton(
+                                      text: "Apply Filters",
+                                      onPressed: () {
+                                        Get.back();
+                                      },
+                                      gradientColors: const [
+                                        Color(0xFF2563EB),
+                                        Color(0xFF9333EA),
+                                      ],
+                                      height: 48.h,
+                                    ),
+                                  ],
+                                ),
+                              ).floating();
+                            },
                             child: Container(
                               padding: EdgeInsets.all(6.5.h),
                               decoration: BoxDecoration(
@@ -164,7 +228,7 @@ class Clinics extends GetView<ClinicsController> {
                     child: TextField(
                       controller: controller.searchQuery,
                       onChanged: (val) {
-                        //todo search
+                        controller.searchClinics(val);
                       },
                       decoration: InputDecoration(
                         hintStyle: GoogleFonts.poppins(
@@ -182,10 +246,12 @@ class Clinics extends GetView<ClinicsController> {
             ),
             Obx(
               () => ClinicsSection(
-                clinics: controller.clinics.value,
+                clinics: controller.shownClinics.value,
                 axis: Axis.vertical,
                 height: Get.height - 160.h,
+                imageHeight: 300.h,
                 showHeader: false,
+                position: controller.settings.position!,
               ),
             ),
           ],
@@ -195,7 +261,7 @@ class Clinics extends GetView<ClinicsController> {
   }
 
   _loading() {
-    return const Center(child: Text('Clinics Loaded'));
+    return const Center(child: CircularProgressIndicator());
   }
 
   _error() {

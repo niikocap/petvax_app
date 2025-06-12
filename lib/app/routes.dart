@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 import 'package:petvax/screens/all/auth/auth.dart';
 import 'package:petvax/screens/all/auth/auth_cb.dart';
+import 'package:petvax/screens/all/profile/profile.dart';
+import 'package:petvax/screens/all/profile/profile_cb.dart';
 import 'package:petvax/screens/users/appointments/appointments.dart';
 import 'package:petvax/screens/users/appointments/appointments_cb.dart';
 import 'package:petvax/screens/users/clinics/clinic_cb.dart';
@@ -38,5 +40,10 @@ appRoutes() => [
     name: '/services',
     page: () => Services(),
     binding: ServicesBinding(),
+  ),
+  GetPage(
+    name: '/profile',
+    page: () => PetOwnerProfileScreen(),
+    binding: PetOwnerBinding(),
   ),
 ];

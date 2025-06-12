@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 class Clinic {
@@ -6,6 +7,7 @@ class Clinic {
   final String location;
   final String openingTime;
   final String closingTime;
+  final List operationDays;
   final String distance;
   final String image;
   final double latitude;
@@ -21,6 +23,7 @@ class Clinic {
     required this.image,
     required this.latitude,
     required this.longitude,
+    required this.operationDays,
   });
 
   factory Clinic.fromJson(Map<String, dynamic> json) {
@@ -31,6 +34,7 @@ class Clinic {
       openingTime: json['opening_time'],
       closingTime: json['closing_time'],
       distance: json['distance'] ?? "0",
+      operationDays: jsonDecode(json['operation_days'] ?? '[]'),
       image:
           json['image'] ??
           "https://picsum.photos/200/30${Random().nextInt(10)}",

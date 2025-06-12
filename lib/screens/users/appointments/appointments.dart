@@ -129,7 +129,7 @@ class Appointments extends GetView<AppointmentsController> {
           ),
           Obx(
             () => AppointmentsSection(
-              appointments: controller.appointments.value,
+              appointments: controller.settings.appointments.value,
               axis: Axis.vertical,
               height: Get.height - 160.h,
               showHeader: false,

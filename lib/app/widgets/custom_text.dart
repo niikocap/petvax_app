@@ -9,6 +9,7 @@ class CustomText extends StatelessWidget {
   final String text;
   final TextOverflow? overflow;
   final TextAlign? align;
+  final int? maxLines;
 
   const CustomText({
     required this.text,
@@ -18,6 +19,7 @@ class CustomText extends StatelessWidget {
     this.color,
     this.overflow,
     this.align,
+    this.maxLines,
   });
 
   @override
@@ -26,6 +28,7 @@ class CustomText extends StatelessWidget {
       text,
       overflow: overflow ?? TextOverflow.ellipsis,
       textAlign: align ?? TextAlign.left,
+      maxLines: maxLines ?? 1,
       style: GoogleFonts.poppins(
         fontWeight: fontWeight ?? FontWeight.w300,
         fontSize: (fontSize ?? 15).sp,

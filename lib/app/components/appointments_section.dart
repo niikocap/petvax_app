@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:petvax/app/models/appointment_model.dart';
-
-import '../../screens/users/appointments/appointments_cb.dart';
 import '../constants/strings.dart';
 import '../widgets/custom_text.dart';
 
@@ -379,6 +377,7 @@ class AppointmentsSection extends StatelessWidget {
   }
 
   // Add these methods to handle the actions
+  // ignore: unused_element
   void _editAppointment(appointment) {
     // Navigate to edit appointment screen or show edit dialog
     // Example:
@@ -388,6 +387,7 @@ class AppointmentsSection extends StatelessWidget {
     // showEditAppointmentDialog(appointment);
   }
 
+  // ignore: unused_element
   void _deleteAppointment(appointment, int index) {
     // Show confirmation dialog before deleting
     Get.dialog(
@@ -416,6 +416,7 @@ class AppointmentsSection extends StatelessWidget {
     );
   }
 
+  // ignore: unused_element
   void _viewAppointmentDetails(appointment) {
     // Handle view details
     Get.toNamed('/appointment-details', arguments: appointment);

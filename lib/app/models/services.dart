@@ -30,7 +30,7 @@ class ServicesModel {
       category: json['category'] as String,
       description: json['description'] as String,
       price: double.tryParse(json['price']) ?? 0.0,
-      specie: json['species'] as String,
+      specie: json['species'].toString(),
       size: json['size'] as String,
       clinicId: json['clinic_id'] as int,
       image:

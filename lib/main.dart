@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:petvax/screens/all/splash/splash.dart';
 import 'package:petvax/screens/all/splash/splash_cb.dart';
-
 import 'app/routes.dart';
 // Import your screens here
 

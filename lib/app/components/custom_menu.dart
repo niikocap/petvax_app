@@ -1,7 +1,6 @@
 import 'package:circular_menu/circular_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:petvax/screens/all/profile/profile.dart';
 
 class CustomMenu extends StatelessWidget {
   const CustomMenu({super.key});
@@ -51,9 +50,9 @@ class CustomMenu extends StatelessWidget {
           icon: Icons.person,
           color: Colors.green,
           onTap: () {
-            Get.to(() => PetOwnerProfileScreen());
-
             Get.toNamed('/profile');
+
+            //Get.toNamed('/profile');
           },
         ),
       ],

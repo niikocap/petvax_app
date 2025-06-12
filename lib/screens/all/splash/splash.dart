@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:petvax/screens/all/splash/splash_cb.dart';
 
@@ -25,7 +26,27 @@ class Splash extends GetView<SplashController> {
   }
 
   _loading() {
-    return CircularProgressIndicator();
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Image.asset('assets/img/logo.png', width: 150.h, height: 150.h),
+        const SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Obx(
+              () => CustomText(
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+                text:
+                    "${controller.loadingText.value} ${controller.dots.value}",
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 50.h),
+      ],
+    );
   }
 
   _loaded() {

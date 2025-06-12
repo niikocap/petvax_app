@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:petvax/app/constants/strings.dart';
+import 'package:petvax/app/models/user_model.dart';
 import 'package:petvax/app/services/storage_service.dart';
 import 'package:petvax/app/widgets/custom_text.dart';
 
@@ -80,6 +81,7 @@ class AuthController extends GetxController {
       "password": password.value,
     });
     Get.back();
+    print(res.body);
     if (res.body['status']) {
       showDialog(
         context: Get.context!,
@@ -87,11 +89,9 @@ class AuthController extends GetxController {
             (_) => PopupDialog(
               isOpen: true,
               onPrimary: () async {
-                await Storage.saveBool(key: 'isLoggedIn', value: true);
-                await Storage.saveString(
-                  key: 'userId',
-                  value: res.body['user']['id'].toString(),
-                );
+                UserModel user = UserModel.fromJson(res.body['user']);
+                await Storage.saveUser(user: user);
+
                 Get.offAndToNamed('/home');
               },
               onClose: () {
@@ -124,9 +124,106 @@ class AuthController extends GetxController {
     }
   }
 
-  void signUp() {
-    print('Sign up with: ${fullName.value}, ${email.value}, ${phone.value}');
-    // Implement your sign up logic here
+  void signUp() async {
+    // Validate inputs
+    if (fullName.value.isEmpty ||
+        email.value.isEmpty ||
+        password.value.isEmpty) {
+      showDialog(
+        context: Get.context!,
+        builder:
+            (_) => PopupDialog(
+              isOpen: true,
+              onClose: () {
+                Get.back();
+              },
+              title: "Validation Error",
+              type: PopupDialogType.error,
+              secondaryButton: null,
+              primaryButton: "Got it",
+              child: CustomText(text: "Please fill in all required fields"),
+            ),
+      );
+      return;
+    }
+
+    if (password.value != confirmPassword.value) {
+      showDialog(
+        context: Get.context!,
+        builder:
+            (_) => PopupDialog(
+              isOpen: true,
+              onClose: () {
+                Get.back();
+              },
+              title: "Validation Error",
+              type: PopupDialogType.error,
+              secondaryButton: null,
+              primaryButton: "Got it",
+              child: CustomText(text: "Passwords do not match"),
+            ),
+      );
+      return;
+    }
+
+    // Show loading indicator
+    showDialog(
+      context: Get.context!,
+      builder: (_) => Center(child: CircularProgressIndicator()),
+    );
+
+    // Send signup request
+    var res = await connect.post("signup", {
+      "name": fullName.value,
+      "email": email.value,
+      "password": password.value,
+      // "password_confirmation": confirmPassword.value,
+      //"contact_number": phone.value,
+    });
+
+    Get.back(); // Dismiss loading indicator
+
+    if (res.body['status']) {
+      showDialog(
+        context: Get.context!,
+        builder:
+            (_) => PopupDialog(
+              isOpen: true,
+              onPrimary: () async {
+                UserModel user = UserModel.fromJson(res.body['user']);
+                await Storage.saveUser(user: user);
+                Get.offAndToNamed('/home');
+              },
+              onClose: () {
+                Get.back();
+              },
+              showCloseButton: false,
+              title: "Success!",
+              type: PopupDialogType.success,
+              secondaryButton: null,
+              primaryButton: "Got it",
+              child: CustomText(text: "Account created successfully"),
+            ),
+      );
+    } else {
+      showDialog(
+        context: Get.context!,
+        builder:
+            (_) => PopupDialog(
+              isOpen: true,
+              onClose: () {
+                Get.back();
+              },
+              title: "Failed!",
+              type: PopupDialogType.error,
+              secondaryButton: null,
+              primaryButton: "Got it",
+              child: CustomText(
+                text: res.body['message'] ?? "Registration failed",
+              ),
+            ),
+      );
+    }
   }
 
   void forgotPassword() {

@@ -1,17 +1,11 @@
-import 'dart:developer';
-
-import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:petvax/app/constants/strings.dart';
 import 'package:petvax/app/models/services.dart';
-import 'package:petvax/app/widgets/custom_bottomsheet.dart';
 import 'package:petvax/app/widgets/custom_text.dart';
 import 'package:petvax/app/widgets/gradient_button.dart';
 import 'package:petvax/screens/users/clinics/services_cb.dart';
-
-import '../../../app/components/date_picker.dart';
 
 class Services extends GetView<ServicesController> {
   const Services({super.key});
@@ -45,7 +39,11 @@ class Services extends GetView<ServicesController> {
                 width: Get.width,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: NetworkImage(controller.clinic!.image),
+                    image: NetworkImage(
+                      controller.clinic?.image != null
+                          ? "${AppStrings.imageUrl}${controller.clinic?.image}"
+                          : 'https://picsum.photos/800/400',
+                    ),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -57,7 +55,7 @@ class Services extends GetView<ServicesController> {
                   child: Align(
                     alignment: Alignment.center,
                     child: Container(
-                      width: Get.width - 60.w,
+                      width: Get.width - 40.w,
                       padding: EdgeInsets.symmetric(
                         horizontal: 10.w,
                         vertical: 10.h,
@@ -200,361 +198,182 @@ class Services extends GetView<ServicesController> {
         Column(
           children: [
             Obx(() {
-              List<ServicesModel> groomings =
-                  controller.services
-                      .where((service) => service.category == 'grooming')
-                      .toList();
-              List<ServicesModel> vaccines =
-                  controller.services
-                      .where((service) => service.category == 'vaccine')
-                      .toList();
-              List<ServicesModel> dewormings =
-                  controller.services
-                      .where((service) => service.category == 'deworming')
-                      .toList();
-              if (controller.activeIndex.value == 0) {
-                return Container(
-                  height: Get.height - 300.h,
+              final services = {
+                'grooming':
+                    controller.services
+                        .where((s) => s.category == 'grooming')
+                        .toList(),
+                'vaccine':
+                    controller.services
+                        .where((s) => s.category == 'vaccine')
+                        .toList(),
+                'deworming':
+                    controller.services
+                        .where((s) => s.category == 'deworming')
+                        .toList(),
+              };
 
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 30.w,
-                    vertical: 10.h,
+              final currentServices = switch (controller.activeIndex.value) {
+                0 => services['grooming'],
+                1 => services['vaccine'],
+                2 => services['deworming'],
+                _ => <ServicesModel>[],
+              };
+
+              if (currentServices == null || currentServices.isEmpty) {
+                return Container();
+              }
+
+              return Container(
+                height: Get.height - 300.h,
+                padding: EdgeInsets.symmetric(horizontal: 20.w),
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.6,
+                    crossAxisSpacing: 5.w,
+                    mainAxisSpacing: 5.h,
                   ),
-                  child: ListView.builder(
-                    itemCount: groomings.length,
-                    shrinkWrap: true,
-                    itemBuilder: (_, index) {
-                      var data = groomings[index];
-                      return Container(
-                        margin: EdgeInsets.only(bottom: 10.w),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 30.w,
-                          vertical: 20.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10.r),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 5,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            Container(
-                              height: 100.w,
-                              width: 100.w,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(999),
-                                image: DecorationImage(
-                                  image: NetworkImage(groomings[index].image),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 20.h),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                  itemCount: currentServices.length,
+                  // padding: EdgeInsets.symmetric(
+                  //   horizontal: 20.w,
+                  //   vertical: 10.h,
+                  // ),
+                  itemBuilder: (_, index) {
+                    final service = currentServices[index];
+                    return Container(
+                      margin: EdgeInsets.symmetric(vertical: 5.h),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 10,
+                            spreadRadius: 2,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: Stack(
+                              fit: StackFit.expand,
                               children: [
-                                CustomText(
-                                  text: groomings[index].name,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w500,
+                                ClipRRect(
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(15.r),
+                                  ),
+                                  child: Image.network(
+                                    service.image != ""
+                                        ? "${AppStrings.imageUrl}${service.image}"
+                                        : 'https://picsum.photos/800/300',
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
-                                CustomText(text: groomings[index].description),
-                                CustomText(
-                                  text: "From P${groomings[index].price}",
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.grey,
-                                  fontSize: 16,
+                                Positioned.fill(
+                                  child: DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.vertical(
+                                        top: Radius.circular(15.r),
+                                      ),
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: [
+                                          Colors.transparent,
+                                          Colors.black.withOpacity(0.4),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 5.h,
+                                  right: 5.w,
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 10.w,
+                                      vertical: 3.h,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.teal,
+                                      borderRadius: BorderRadius.circular(10.r),
+                                    ),
+                                    child: CustomText(
+                                      text: "${service.price}",
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: 10.h,
+                                  left: 10.w,
+                                  right: 10.w,
+                                  child: CustomText(
+                                    text: service.name,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    align: TextAlign.center,
+                                  ),
                                 ),
                               ],
                             ),
-                            SizedBox(height: 20.h),
-                            GradientButton(
-                              height: 48.h,
-                              text: "Book Now",
-                              onPressed: () {
-                                if (controller.pets.isEmpty) {
-                                  controller.showErrorSnackbar(
-                                    "You don't have any pets!",
-                                  );
-                                  return;
-                                }
-                                CustomBottomsheet(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      CustomText(
-                                        text: "Additional Details",
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 20,
-                                      ),
-                                      SizedBox(height: 10.h),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          CustomText(
-                                            text: "Select pet to book",
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 15,
-                                            color: Colors.grey[900],
-                                          ),
-                                          SizedBox(height: 5.h),
-                                          CustomDropdown<String>(
-                                            hintText: 'Select pet',
-                                            items:
-                                                controller.pets
-                                                    .map((e) => e.name)
-                                                    .toList(),
-                                            initialItem:
-                                                controller.pets
-                                                    .map((e) => e.name)
-                                                    .toList()[0],
-                                            onChanged: (value) {
-                                              controller.selectedPet(value);
-                                            },
-                                            decoration:
-                                                CustomDropdownDecoration(
-                                                  closedFillColor:
-                                                      Colors.grey[200],
-                                                  headerStyle:
-                                                      GoogleFonts.poppins(),
-                                                  hintStyle:
-                                                      GoogleFonts.poppins(),
-                                                  listItemStyle:
-                                                      GoogleFonts.poppins(),
-                                                  //:
-                                                ),
-                                          ),
-                                          SizedBox(height: 10.h),
-                                        ],
-                                      ),
-                                      Column(
-                                        children: [
-                                          CustomDateTimePicker(),
-                                          SizedBox(height: 10.h),
-                                        ],
-                                      ),
-                                      GradientButton(
-                                        text: "Continue Booking",
-                                        onPressed: () {
-                                          controller.bookNow(
-                                            data.id,
-                                            data.price,
-                                          );
-                                        },
-                                        gradientColors: [
-                                          Colors.teal,
-                                          Colors.tealAccent,
-                                        ],
-                                        height: 48.h,
-                                      ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12.w,
+                                vertical: 8.h,
+                              ),
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  CustomText(
+                                    text: service.description,
+                                    fontSize: 13,
+                                    color: Colors.grey[700],
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  GradientButton(
+                                    height: 35.h,
+                                    width: double.infinity,
+                                    text: "Book Now",
+                                    onPressed: () {
+                                      if (controller.pets.isEmpty) {
+                                        controller.showErrorSnackbar(
+                                          "You don't have any pets!",
+                                        );
+                                        return;
+                                      }
+                                      controller.book(
+                                        service.id,
+                                        service.price,
+                                      );
+                                    },
+                                    gradientColors: [
+                                      Colors.teal,
+                                      Colors.tealAccent,
                                     ],
                                   ),
-                                ).floating();
-                              },
-                              gradientColors: [Colors.teal, Colors.tealAccent],
+                                ],
+                              ),
                             ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                );
-              } else if (controller.activeIndex.value == 1) {
-                return SizedBox(
-                  height: Get.height - 300.h,
-
-                  child: ListView.builder(
-                    itemCount: vaccines.length,
-                    itemBuilder: (_, index) {
-                      return Container(
-                        height: Get.height - 300.h,
-                        margin: EdgeInsets.only(bottom: 10.w),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 30.w,
-                          vertical: 10.h,
-                        ),
-                        child: ListView.builder(
-                          itemCount: vaccines.length,
-                          shrinkWrap: true,
-                          itemBuilder: (_, index) {
-                            return Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 30.w,
-                                vertical: 20.h,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10.r),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                children: [
-                                  Container(
-                                    height: 100.w,
-                                    width: 100.w,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(999),
-                                      image: DecorationImage(
-                                        image: NetworkImage(
-                                          vaccines[index].image,
-                                        ),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(height: 20.h),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      CustomText(
-                                        text: vaccines[index].name,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      CustomText(
-                                        text: vaccines[index].description,
-                                      ),
-                                      CustomText(
-                                        text: "From P${vaccines[index].price}",
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.grey,
-                                        fontSize: 16,
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 20.h),
-                                  GradientButton(
-                                    height: 48.h,
-                                    text: "Book Now",
-                                    onPressed: () {
-                                      CustomBottomsheet(
-                                        child: Column(),
-                                      ).floating();
-                                    },
-                                    gradientColors: [
-                                      Colors.teal,
-                                      Colors.tealAccent,
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                );
-              } else if (controller.activeIndex.value == 2) {
-                return SizedBox(
-                  height: Get.height - 300.h,
-
-                  child: ListView.builder(
-                    itemCount: dewormings.length,
-                    itemBuilder: (_, index) {
-                      return Container(
-                        height: Get.height - 300.h,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 30.w,
-                          vertical: 10.h,
-                        ),
-                        child: ListView.builder(
-                          itemCount: vaccines.length,
-                          shrinkWrap: true,
-                          itemBuilder: (_, index) {
-                            return Container(
-                              margin: EdgeInsets.only(bottom: 10.w),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 30.w,
-                                vertical: 20.h,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10.r),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                children: [
-                                  Container(
-                                    height: 100.w,
-                                    width: 100.w,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(999),
-                                      image: DecorationImage(
-                                        image: NetworkImage(
-                                          vaccines[index].image,
-                                        ),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(height: 20.h),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      CustomText(
-                                        text: vaccines[index].name,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      CustomText(
-                                        text: vaccines[index].description,
-                                      ),
-                                      CustomText(
-                                        text: "From P${vaccines[index].price}",
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.grey,
-                                        fontSize: 16,
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 20.h),
-                                  GradientButton(
-                                    height: 48.h,
-                                    text: "Book Now",
-                                    onPressed: () {
-                                      CustomBottomsheet(
-                                        child: Column(),
-                                      ).floating();
-                                    },
-                                    gradientColors: [
-                                      Colors.teal,
-                                      Colors.tealAccent,
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                );
-              }
-              return Container();
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              );
             }),
           ],
         ),
@@ -563,7 +382,7 @@ class Services extends GetView<ServicesController> {
   }
 
   _loading() {
-    return const Center(child: Text('Clinics Loaded'));
+    return const Center(child: CircularProgressIndicator());
   }
 
   _error() {

@@ -6,6 +6,7 @@ class Pet {
   final int? age;
   final String? color;
   final double? weight;
+  final String? image;
 
   Pet({
     required this.id,
@@ -15,6 +16,7 @@ class Pet {
     this.age,
     this.color,
     this.weight,
+    this.image,
   });
 
   factory Pet.fromJson(json) {
@@ -22,6 +24,7 @@ class Pet {
       id: json['id'],
       name: json['name'],
       species: json['species'] ?? "canine",
+      image: json['image'],
     );
   }
 }

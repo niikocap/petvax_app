@@ -8,12 +8,12 @@ class CustomDateTimePicker extends StatefulWidget {
   final String hint;
 
   const CustomDateTimePicker({
-    Key? key,
+    super.key,
     this.onDateTimeSelected,
     this.initialValue,
     this.label = 'Select Date & Time',
     this.hint = 'MM/DD/YYYY HH:MM AM/PM',
-  }) : super(key: key);
+  });
 
   @override
   State<CustomDateTimePicker> createState() => _CustomDateTimePickerState();
@@ -71,6 +71,7 @@ class _CustomDateTimePickerState extends State<CustomDateTimePicker> {
     textController.text = _formatForDisplay();
   }
 
+  // ignore: unused_element
   void _selectDate(int day) {
     setState(() {
       selectedDate = DateTime(currentMonth.year, currentMonth.month, day);
@@ -78,6 +79,7 @@ class _CustomDateTimePickerState extends State<CustomDateTimePicker> {
     });
   }
 
+  // ignore: unused_element
   void _changeMonth(bool isNext) {
     setState(() {
       if (isNext) {
@@ -88,6 +90,7 @@ class _CustomDateTimePickerState extends State<CustomDateTimePicker> {
     });
   }
 
+  // ignore: unused_element
   void _selectTime() async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
@@ -115,6 +118,7 @@ class _CustomDateTimePickerState extends State<CustomDateTimePicker> {
     }
   }
 
+  // ignore: unused_element
   void _setNow() {
     final now = DateTime.now();
     setState(() {
@@ -122,14 +126,6 @@ class _CustomDateTimePickerState extends State<CustomDateTimePicker> {
       selectedTime = TimeOfDay.fromDateTime(now);
       currentMonth = now;
       _updateTextField();
-    });
-  }
-
-  void _clear() {
-    setState(() {
-      selectedDate = null;
-      selectedTime = TimeOfDay.now();
-      textController.clear();
     });
   }
 
@@ -659,7 +655,10 @@ class _CustomDateTimePickerState extends State<CustomDateTimePicker> {
 
 // Example usage widget
 class DateTimePickerExample extends StatefulWidget {
+  const DateTimePickerExample({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _DateTimePickerExampleState createState() => _DateTimePickerExampleState();
 }
 

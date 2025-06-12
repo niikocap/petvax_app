@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:petvax/app/constants/strings.dart';
 import 'package:petvax/app/models/pet_model.dart';
 import 'package:petvax/app/widgets/custom_text.dart';
 import 'package:petvax/screens/users/pets/cb/pets_cb.dart';
@@ -134,13 +135,13 @@ class Pets extends GetView<PetsController> {
 
           RefreshIndicator(
             onRefresh: () async {
-              await controller.fetchPets();
+              await controller.settings.fetchPets();
             },
             child: ListView.builder(
               shrinkWrap: true,
-              itemCount: controller.pets.length,
+              itemCount: controller.settings.pets.length,
               itemBuilder: (_, index) {
-                Pet pet = controller.pets[index];
+                Pet pet = controller.settings.pets[index];
                 return Container(
                   width: Get.width,
                   margin: EdgeInsets.only(bottom: 10.h),
@@ -176,7 +177,9 @@ class Pets extends GetView<PetsController> {
                                 ),
                                 image: DecorationImage(
                                   image: NetworkImage(
-                                    'https://picsum.photos/200/303',
+                                    pet.image != null
+                                        ? "${AppStrings.imageUrl}${pet.image}"
+                                        : 'https://picsum.photos/200/303',
                                   ),
                                   fit: BoxFit.cover,
                                 ),

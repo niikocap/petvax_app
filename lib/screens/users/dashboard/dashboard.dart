@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:petvax/app/components/appointments_section.dart';
 import 'package:petvax/app/components/clinics_section.dart';
+import 'package:petvax/app/constants/strings.dart';
 
 import '../../../app/components/custom_menu.dart';
 import '../../../app/widgets/custom_text.dart';
@@ -32,9 +33,7 @@ class DashboardScreen extends GetView<DashboardController> {
   _loaded() {
     return RefreshIndicator(
       onRefresh: () async {
-        await controller.fetchAppointments();
-        await controller.fetchPets();
-        await controller.fetchClinics();
+        await controller.settings.fetchAll();
       },
       child: Column(
         children: [
@@ -87,8 +86,9 @@ class DashboardScreen extends GetView<DashboardController> {
                   // Clinics Section
                   Obx(
                     () => ClinicsSection(
-                      clinics: controller.clinics.value,
+                      clinics: controller.settings.clinics.value,
                       padding: 0,
+                      position: controller.position!,
                     ),
                   ),
                   SizedBox(height: 24.h),
@@ -100,7 +100,7 @@ class DashboardScreen extends GetView<DashboardController> {
                   // Appointments Section
                   Obx(
                     () => AppointmentsSection(
-                      appointments: controller.appointments.value,
+                      appointments: controller.settings.appointments.value,
                     ),
                   ),
                 ],
@@ -158,9 +158,9 @@ class DashboardScreen extends GetView<DashboardController> {
             height: 75.h,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: controller.pets.length + 1,
+              itemCount: controller.settings.pets.length + 1,
               itemBuilder: (context, index) {
-                if (index == controller.pets.length) {
+                if (index == controller.settings.pets.length) {
                   // Add Pet Card
                   return GestureDetector(
                     onTap: () {
@@ -206,7 +206,7 @@ class DashboardScreen extends GetView<DashboardController> {
                   );
                 }
 
-                final pet = controller.pets[index];
+                final pet = controller.settings.pets[index];
                 return Container(
                   margin: EdgeInsets.only(right: 12.w),
                   padding: EdgeInsets.all(12.w),
@@ -221,21 +221,39 @@ class DashboardScreen extends GetView<DashboardController> {
                         width: 40.w,
                         height: 40.w,
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFA855F7), Color(0xFFEC4899)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
                           borderRadius: BorderRadius.circular(20.r),
+                          gradient:
+                              pet.image == null
+                                  ? const LinearGradient(
+                                    colors: [
+                                      Color(0xFFA855F7),
+                                      Color(0xFFEC4899),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  )
+                                  : null,
+                          image:
+                              pet.image != null
+                                  ? DecorationImage(
+                                    image: NetworkImage(
+                                      '${AppStrings.imageUrl}${pet.image}',
+                                    ),
+                                    fit: BoxFit.cover,
+                                  )
+                                  : null,
                         ),
-                        child: Center(
-                          child: CustomText(
-                            text: pet.name[0].toUpperCase(),
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
+                        child:
+                            pet.image == null
+                                ? Center(
+                                  child: CustomText(
+                                    text: pet.name[0].toUpperCase(),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                )
+                                : null,
                       ),
                       SizedBox(width: 10.w),
                       Column(

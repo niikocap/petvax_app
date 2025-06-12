@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:petvax/app/constants/strings.dart';
 import 'package:petvax/app/mixins/snackbar.dart';
+import 'package:petvax/screens/all/utility/settings_controller.dart';
 
 import '../../../../app/services/storage_service.dart';
 
@@ -12,6 +13,7 @@ enum AddPetView { loading, loaded, error }
 
 class AddPetController extends GetxController with SnackBarMixin {
   var view = AddPetView.loading.obs;
+  Settings settings = Get.find<Settings>();
   GetConnect connect = GetConnect();
   // Form data
   final name = "".obs;
@@ -189,8 +191,8 @@ class AddPetController extends GetxController with SnackBarMixin {
         'species': specie.value,
         'breed': breed.value.isEmpty ? null : breed.value,
         'birth_date': birthDate.value?.toIso8601String().split('T')[0],
-        'clinic_id': 1,
-        'owner_id': (await Storage.getString(key: 'userId')).toString(),
+        'clinic_id': 2,
+        'owner_id': settings.user!.id,
         'weight': weight.value.isEmpty ? null : double.tryParse(weight.value),
         'gender': selectedGender.value.isEmpty ? null : selectedGender.value,
       };
@@ -199,14 +201,16 @@ class AddPetController extends GetxController with SnackBarMixin {
 
       if (res.body['status'] != 'success') {
         throw Exception('Failed to add pet: ${res.body['message']}');
+      } else {
+        await settings.fetchPets();
+        showSuccessSnackBar("Pet added successfully!");
       }
-      showSuccessSnackBar("Pet added successfully!");
 
       // Reset form
       resetForm();
       Get.back();
     } catch (e) {
-      showErrorSn ackbar('Failed to add pet. Please try again.');
+      showErrorSnackbar(e.toString());
     } finally {
       isLoading.value = false;
     }

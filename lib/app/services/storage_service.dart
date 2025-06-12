@@ -1,7 +1,10 @@
+import 'dart:convert';
+import 'package:petvax/app/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Storage {
   static saveInt({String key = '', int value = 0}) async {
+    // ignore: unused_local_variable
     final SharedPreferences prefs = await SharedPreferences.getInstance();
   }
 
@@ -46,5 +49,27 @@ class Storage {
       return jsonString; // Return the string representation of the map
     }
     return {};
+  }
+
+  static saveUser({required UserModel user}) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String jsonString = jsonEncode(user.toJson()); // Convert map to string
+    await prefs.setString('user', jsonString);
+  }
+
+  static Future<UserModel?> getUser() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? jsonString = prefs.getString('user');
+    if (jsonString != null) {
+      return UserModel.fromJson(
+        jsonDecode(jsonString),
+      ); // Return the string representation of the map
+    }
+    return null;
+  }
+
+  static Future<void> deleteUser() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('user');
   }
 }

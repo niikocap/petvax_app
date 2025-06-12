@@ -11,7 +11,9 @@ class ClinicsSection extends StatelessWidget {
   final List<Clinic> clinics;
   final Axis? axis;
   final double? height;
+  final double? imageHeight;
   final bool showHeader;
+  final Position position;
   final double? padding;
 
   const ClinicsSection({
@@ -19,35 +21,11 @@ class ClinicsSection extends StatelessWidget {
     required this.clinics,
     this.axis,
     this.height,
+    this.imageHeight,
     this.showHeader = true,
     this.padding,
+    required this.position,
   });
-
-  Future<Position> determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-        'Location permissions are permanently denied, we cannot request permissions.',
-      );
-    }
-
-    return await Geolocator.getCurrentPosition();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +105,9 @@ class ClinicsSection extends StatelessWidget {
                             ),
                             child: Image.network(
                               clinic.image,
-                              height: height == null ? 100.h : 125.h,
+                              height:
+                                  imageHeight ??
+                                  (height == null ? 100.h : 125.h),
                               width: double.infinity,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
@@ -182,9 +162,8 @@ class ClinicsSection extends StatelessWidget {
                                     ),
                                     GestureDetector(
                                       onTap: () async {
-                                        var pos = await determinePosition();
                                         final Uri googleMapsUrl = Uri.parse(
-                                          'https://www.google.com/maps/dir/?api=1&origin=${pos.latitude},${pos.longitude}&destination=${clinic.latitude},${clinic.longitude}&travelmode=driving',
+                                          'https://www.google.com/maps/dir/?api=1&origin=${position.latitude},${position.longitude}&destination=${clinic.latitude},${clinic.longitude}&travelmode=driving',
                                         );
 
                                         await launchUrl(
@@ -226,7 +205,8 @@ class ClinicsSection extends StatelessWidget {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     CustomText(
-                                      text: "${clinic.distance} away",
+                                      text:
+                                          "${(Geolocator.distanceBetween(position.latitude, position.longitude, clinic.latitude, clinic.longitude) / 1000).toStringAsFixed(2)} km away",
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
                                       color: const Color(0xFF2563EB),
