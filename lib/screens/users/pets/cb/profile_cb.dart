@@ -55,6 +55,7 @@ class PetProfileController extends GetxController {
           description: 'Annual DHPP booster vaccination',
           veterinarian: 'Dr. Emily Chen',
           notes: 'No adverse reactions observed',
+          status: 'completed',
         ),
         MedicalRecord(
           id: 2,
@@ -63,6 +64,7 @@ class PetProfileController extends GetxController {
           description: 'Routine wellness examination',
           veterinarian: 'Dr. Emily Chen',
           notes: 'Healthy weight, good dental condition',
+          status: 'completed',
         ),
         MedicalRecord(
           id: 3,
@@ -71,6 +73,7 @@ class PetProfileController extends GetxController {
           description: 'Ear infection treatment',
           veterinarian: 'Dr. Emily Chen',
           notes: 'Prescribed antibiotic drops, follow-up in 2 weeks',
+          status: 'completed',
         ),
       ].obs;
 

@@ -218,7 +218,7 @@ class Pets extends GetView<PetsController> {
                           switch (value) {
                             case 'book':
                               // Handle book now action
-                              print('Book Now pressed for ${pet.name}');
+                              Get.toNamed('/view-pet', arguments: pet);
                               break;
                             case 'edit':
                               // Handle edit action
@@ -237,13 +237,13 @@ class Pets extends GetView<PetsController> {
                                 child: Row(
                                   children: [
                                     Icon(
-                                      Icons.book_online,
+                                      Icons.visibility_rounded,
                                       color: Colors.blue,
                                       size: 20.sp,
                                     ),
                                     SizedBox(width: 12.w),
                                     Text(
-                                      'Book Now',
+                                      'View',
                                       style: TextStyle(
                                         fontSize: 14.sp,
                                         fontWeight: FontWeight.w500,

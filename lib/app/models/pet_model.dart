@@ -6,6 +6,8 @@ class Pet {
   final int? age;
   final String? color;
   final double? weight;
+  final String? size;
+  final String? gender;
   final String? image;
 
   Pet({
@@ -17,6 +19,8 @@ class Pet {
     this.color,
     this.weight,
     this.image,
+    this.size,
+    this.gender,
   });
 
   factory Pet.fromJson(json) {
@@ -25,6 +29,27 @@ class Pet {
       name: json['name'],
       species: json['species'] ?? "canine",
       image: json['image'],
+      breed: json['breed'],
+      age: json['age'],
+      color: json['color'],
+      weight: double.tryParse(json['weight'] ?? "0.0") ?? 0.0,
+      size: json['size'],
+      gender: json['gender'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'species': species,
+      'breed': breed,
+      'age': age,
+      'color': color,
+      'weight': weight,
+      'size': size,
+      'gender': gender,
+      'image': image,
+    };
   }
 }

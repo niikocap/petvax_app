@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:petvax/app/models/appointment_model.dart';
+import 'package:petvax/app/widgets/gradient_button.dart';
+import 'package:petvax/screens/all/utility/settings_controller.dart';
 import '../constants/strings.dart';
 import '../widgets/custom_text.dart';
 
@@ -324,7 +326,221 @@ class AppointmentsSection extends StatelessWidget {
                                 Row(
                                   children: [
                                     GestureDetector(
-                                      onTap: () {},
+                                      onTap: () {
+                                        Get.bottomSheet(
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.vertical(
+                                                    top: Radius.circular(20.r),
+                                                  ),
+                                            ),
+                                            padding: EdgeInsets.all(24.w),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    CustomText(
+                                                      text:
+                                                          'Appointment Details',
+                                                      fontSize: 20,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                      color: const Color(
+                                                        0xFF1F2937,
+                                                      ),
+                                                    ),
+                                                    IconButton(
+                                                      onPressed:
+                                                          () => Get.back(),
+                                                      icon: const Icon(
+                                                        Icons.close,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(height: 16.h),
+
+                                                // Appointment Info
+                                                Container(
+                                                  padding: EdgeInsets.all(16.w),
+                                                  decoration: BoxDecoration(
+                                                    color: const Color(
+                                                      0xFFF9FAFB,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12.r,
+                                                        ),
+                                                  ),
+                                                  child: Column(
+                                                    children: [
+                                                      _detailRow(
+                                                        'Appointment ID',
+                                                        '#${appointment.id}',
+                                                      ),
+                                                      _detailRow(
+                                                        'Date & Time',
+                                                        appointment.date,
+                                                      ),
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          CustomText(
+                                                            text: 'Status',
+                                                            fontSize: 14,
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                            color: const Color(
+                                                              0xFF6B7280,
+                                                            ),
+                                                          ),
+                                                          Container(
+                                                            padding:
+                                                                EdgeInsets.symmetric(
+                                                                  horizontal:
+                                                                      8.w,
+                                                                  vertical: 4.h,
+                                                                ),
+                                                            decoration: BoxDecoration(
+                                                              color:
+                                                                  appointment.status
+                                                                              .toLowerCase() ==
+                                                                          'completed'
+                                                                      ? const Color(
+                                                                        0xFF10B981,
+                                                                      ).withOpacity(
+                                                                        0.1,
+                                                                      )
+                                                                      : appointment
+                                                                              .status
+                                                                              .toLowerCase() ==
+                                                                          'approved'
+                                                                      ? const Color(
+                                                                        0xFF3B82F6,
+                                                                      ).withOpacity(
+                                                                        0.1,
+                                                                      )
+                                                                      : appointment
+                                                                              .status
+                                                                              .toLowerCase() ==
+                                                                          'declined'
+                                                                      ? const Color(
+                                                                        0xFFDC2626,
+                                                                      ).withOpacity(
+                                                                        0.1,
+                                                                      )
+                                                                      : const Color(
+                                                                        0xFF6B7280,
+                                                                      ).withOpacity(
+                                                                        0.1,
+                                                                      ),
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    12.r,
+                                                                  ),
+                                                            ),
+                                                            child: CustomText(
+                                                              text:
+                                                                  appointment
+                                                                      .status,
+                                                              fontSize: 14,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              color:
+                                                                  appointment.status
+                                                                              .toLowerCase() ==
+                                                                          'completed'
+                                                                      ? const Color(
+                                                                        0xFF10B981,
+                                                                      )
+                                                                      : appointment
+                                                                              .status
+                                                                              .toLowerCase() ==
+                                                                          'approved'
+                                                                      ? const Color(
+                                                                        0xFF3B82F6,
+                                                                      )
+                                                                      : appointment
+                                                                              .status
+                                                                              .toLowerCase() ==
+                                                                          'declined'
+                                                                      ? const Color(
+                                                                        0xFFDC2626,
+                                                                      )
+                                                                      : const Color(
+                                                                        0xFF6B7280,
+                                                                      ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      SizedBox(height: 10.h),
+                                                      _detailRow(
+                                                        'Payment Method',
+                                                        'Cash',
+                                                      ),
+
+                                                      _detailRow(
+                                                        'Total Amount',
+                                                        appointment.amount,
+                                                      ),
+                                                      _detailRow(
+                                                        'Notes',
+                                                        'any',
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+
+                                                SizedBox(height: 16.h),
+
+                                                // Service & Clinic Info
+                                                Container(
+                                                  padding: EdgeInsets.all(16.w),
+                                                  decoration: BoxDecoration(
+                                                    color: const Color(
+                                                      0xFFF9FAFB,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12.r,
+                                                        ),
+                                                  ),
+                                                  child: Column(
+                                                    children: [
+                                                      _detailRow(
+                                                        'Service',
+                                                        appointment.serviceName,
+                                                      ),
+                                                      _detailRow(
+                                                        'Clinic',
+                                                        appointment.clinicName,
+                                                      ),
+                                                      _detailRow(
+                                                        'Pet',
+                                                        appointment.petName,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          isScrollControlled: true,
+                                          backgroundColor: Colors.transparent,
+                                        );
+                                      },
                                       child: CustomText(
                                         text: "View Details",
                                         fontSize: 14,
@@ -336,27 +552,7 @@ class AppointmentsSection extends StatelessWidget {
                                     appointment.status.toLowerCase().contains(
                                           "completed",
                                         )
-                                        ? GestureDetector(
-                                          onTap: () {},
-                                          child: Container(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: 15.w,
-                                              vertical: 2.5.h,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Colors.amberAccent
-                                                  .withOpacity(0.2),
-                                              borderRadius:
-                                                  BorderRadius.circular(99),
-                                            ),
-                                            child: CustomText(
-                                              text: "Rate",
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.amber,
-                                            ),
-                                          ),
-                                        )
+                                        ? _rate(appointment)
                                         : Container(),
                                   ],
                                 ),
@@ -372,6 +568,257 @@ class AppointmentsSection extends StatelessWidget {
             },
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 12.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          CustomText(
+            text: label,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            color: const Color(0xFF6B7280),
+          ),
+          CustomText(
+            text: value,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: const Color(0xFF1F2937),
+          ),
+        ],
+      ),
+    );
+  }
+
+  _rate(Appointment appointment) {
+    return GestureDetector(
+      onTap: () {
+        RxInt rating = appointment.rating.obs;
+        var commentController = TextEditingController();
+        Get.bottomSheet(
+          Wrap(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(20.r),
+                  ),
+                ),
+                padding: EdgeInsets.all(24.w),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CustomText(
+                          text: 'Rate Your Experience',
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF1F2937),
+                        ),
+                        IconButton(
+                          onPressed: () => Get.back(),
+                          icon: const Icon(
+                            Icons.close,
+                            color: Color(0xFF6B7280),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10.h),
+
+                    // Service and Clinic Info
+                    Container(
+                      padding: EdgeInsets.all(16.w),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF9FAFB),
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.medical_services_outlined,
+                                color: Color(0xFF6B7280),
+                                size: 20,
+                              ),
+                              SizedBox(width: 15.w),
+                              CustomText(
+                                text: appointment.serviceName,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w400,
+                                color: const Color(0xFF1F2937),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 10.h),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.local_hospital_outlined,
+                                color: Color(0xFF6B7280),
+                                size: 20,
+                              ),
+                              SizedBox(width: 15.w),
+                              CustomText(
+                                text: appointment.clinicName,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w400,
+                                color: const Color(0xFF1F2937),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(height: 10.h),
+                    Center(
+                      child: Obx(
+                        () => Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            5,
+                            (index) => Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 5.w),
+                              child: IconButton(
+                                icon: Icon(
+                                  Icons.star_rounded,
+                                  color:
+                                      index < rating.value
+                                          ? const Color(0xFFFBBF24)
+                                          : const Color(0xFFE5E7EB),
+                                  size: 30.sp,
+                                ),
+                                onPressed: () {
+                                  rating.value = index + 1;
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 24.h),
+
+                    TextField(
+                      controller: commentController,
+                      maxLines: 3,
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        color: const Color(0xFF1F2937),
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'Share your experience...',
+                        hintStyle: TextStyle(
+                          color: const Color(0xFF9CA3AF),
+                          fontSize: 15.sp,
+                        ),
+                        filled: true,
+                        fillColor: const Color(0xFFF9FAFB),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF2563EB),
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height: 24.h),
+                    GradientButton(
+                      text: "Submit Review",
+                      onPressed: () async {
+                        var response = await GetConnect()
+                            .post('${AppStrings.baseUrl}rate/add', {
+                              'clinic_id': appointment.clinicId,
+                              'user_id': Get.find<Settings>().user!.id,
+                              'rate': rating.value,
+                              'comment': commentController.text,
+                              'is_anonymous': false,
+                            });
+
+                        print("response: ${response.body}");
+
+                        if (response.status.hasError) {
+                          Get.snackbar(
+                            'Error',
+                            'Failed to submit review',
+                            snackPosition: SnackPosition.BOTTOM,
+                            backgroundColor: Colors.red.withOpacity(0.1),
+                            colorText: Colors.red,
+                          );
+                          return;
+                        }
+                        Get.back();
+                        Get.snackbar(
+                          'Thank You!',
+                          'Your rating has been submitted successfully',
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: const Color(
+                            0xFF10B981,
+                          ).withOpacity(0.1),
+                          colorText: const Color(0xFF10B981),
+                          duration: const Duration(seconds: 3),
+                        );
+                      },
+                      gradientColors: [
+                        const Color(0xFFFBBF24),
+                        const Color(0xFFF59042),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+        );
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFEF3C7),
+          borderRadius: BorderRadius.circular(99),
+          border: Border.all(color: const Color(0xFFFBBF24)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.star_rounded,
+              color: const Color(0xFFFBBF24),
+              size: 16.sp,
+            ),
+            SizedBox(width: 4.w),
+            CustomText(
+              text: "Rate",
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFFD97706),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -26,6 +26,126 @@ class Services extends GetView<ServicesController> {
   }
 
   _loaded() {
+    if (controller.termsVisible.value) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Container(
+            alignment: Alignment.bottomCenter,
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  spreadRadius: 5,
+                  offset: const Offset(0, -5),
+                ),
+              ],
+            ),
+            child: Wrap(
+              children: [
+                Center(
+                  child: Container(
+                    width: 40.w,
+                    height: 4.h,
+                    margin: EdgeInsets.only(bottom: 15.h),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(10.r),
+                    ),
+                  ),
+                ),
+                CustomText(
+                  text: "Terms and Conditions",
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                SizedBox(height: 10.h),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomText(
+                          text:
+                              "By using the services of PetMed Veterinary Clinic & Grooming Station, you agree to the following terms and conditions:",
+                          fontSize: 14,
+                          color: Colors.grey[700],
+                        ),
+                        SizedBox(height: 10.h),
+                        CustomText(
+                          text:
+                              "• All veterinary treatments, consultations, and procedures are provided based on the professional judgment of our licensed veterinarians.",
+                          fontSize: 14,
+                          color: Colors.grey[700],
+                        ),
+                        SizedBox(height: 5.h),
+                        CustomText(
+                          text:
+                              "• Payment is due only after the service has been completed and must be made within the clinic; we do not accept payments before or outside of the clinic premises.",
+                          fontSize: 14,
+                          color: Colors.grey[700],
+                        ),
+                        SizedBox(height: 5.h),
+                        CustomText(
+                          text:
+                              "• We do not offer refunds for completed treatments.",
+                          fontSize: 14,
+                          color: Colors.grey[700],
+                        ),
+                        SizedBox(height: 10.h),
+                        CustomText(
+                          text:
+                              "• While we take every precaution to ensure the safety and well-being of your pet, PetMed is not liable for unforeseen complications or outcomes.",
+                          fontSize: 14,
+                          color: Colors.grey[700],
+                        ),
+                        SizedBox(height: 5.h),
+                        CustomText(
+                          text:
+                              "• Pet owners must provide accurate medical history and disclose any known health issues.",
+                          fontSize: 14,
+                          color: Colors.grey[700],
+                        ),
+                        SizedBox(height: 10.h),
+                        CustomText(
+                          text:
+                              "• In case of an emergency, we will make every reasonable effort to contact the owner before proceeding with necessary treatments.",
+                          fontSize: 14,
+                          color: Colors.grey[700],
+                        ),
+                        SizedBox(height: 10.h),
+                        CustomText(
+                          overflow: TextOverflow.visible,
+                          text:
+                              "By availing our services, you acknowledge and accept these terms.",
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey[700],
+                        ),
+                        SizedBox(height: 15.h),
+                      ],
+                    ),
+                  ),
+                ),
+                GradientButton(
+                  height: 45.h,
+                  width: double.infinity,
+                  text: "I Agree",
+                  onPressed: () {
+                    controller.termsVisible(false);
+                  },
+                  gradientColors: [Colors.teal, Colors.tealAccent],
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
 
@@ -205,7 +325,7 @@ class Services extends GetView<ServicesController> {
                         .toList(),
                 'vaccine':
                     controller.services
-                        .where((s) => s.category == 'vaccine')
+                        .where((s) => s.category == 'vaccination')
                         .toList(),
                 'deworming':
                     controller.services

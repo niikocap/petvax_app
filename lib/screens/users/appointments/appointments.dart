@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:petvax/app/components/appointments_section.dart';
 import 'package:petvax/app/widgets/custom_text.dart';
 
@@ -102,28 +101,29 @@ class Appointments extends GetView<AppointmentsController> {
                   ],
                 ),
                 SizedBox(height: 15.h),
+
                 // Search Bar
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: TextField(
-                    controller: controller.searchQuery,
-                    onChanged: (val) {
-                      //todo search
-                    },
-                    decoration: InputDecoration(
-                      hintStyle: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w300,
-                      ),
-                      hintText: "Search appointments...",
-                      prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.all(12.w),
-                    ),
-                  ),
-                ),
+                // Container(
+                //   decoration: BoxDecoration(
+                //     color: Colors.white,
+                //     borderRadius: BorderRadius.circular(8.r),
+                //   ),
+                //   child: TextField(
+                //     controller: controller.searchQuery,
+                //     onChanged: (val) {
+                //       //todo search
+                //     },
+                //     decoration: InputDecoration(
+                //       hintStyle: GoogleFonts.poppins(
+                //         fontWeight: FontWeight.w300,
+                //       ),
+                //       hintText: "Search appointments...",
+                //       prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
+                //       border: InputBorder.none,
+                //       contentPadding: EdgeInsets.all(12.w),
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ),

@@ -6,6 +6,8 @@ class Appointment {
   final String petName;
   final String amount;
   final String status;
+  final int rating;
+  final int clinicId;
 
   Appointment({
     required this.id,
@@ -15,6 +17,8 @@ class Appointment {
     required this.petName,
     required this.amount,
     required this.status,
+    required this.clinicId,
+    this.rating = 0,
   });
 
   factory Appointment.fromJson(Map<String, dynamic> json) {
@@ -22,10 +26,12 @@ class Appointment {
       id: json['id'],
       date: json['appointment_datetime'],
       clinicName: json['clinic']['name'],
+      clinicId: json['clinic']['id'],
       serviceName: json['service']['name'],
       petName: json['pet']['name'],
       amount: json['total_amount'].toString(),
       status: json['status'],
+      rating: json['rating'] ?? 0,
     );
   }
 }

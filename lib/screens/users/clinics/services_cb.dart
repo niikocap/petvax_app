@@ -1,15 +1,17 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:petvax/app/constants/strings.dart';
 import 'package:petvax/app/mixins/snackbar.dart';
 import 'package:petvax/app/models/clinic_model.dart';
-import 'package:petvax/app/services/storage_service.dart';
 import 'package:petvax/app/widgets/gradient_button.dart';
+import 'package:petvax/screens/all/utility/settings_controller.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../../../app/models/pet_model.dart';
@@ -19,7 +21,9 @@ enum ServicesView { loading, loaded, error }
 
 class ServicesController extends GetxController with SnackBarMixin {
   var view = ServicesView.loading.obs;
+  Settings settings = Get.find<Settings>();
   GetConnect connect = GetConnect();
+  RxBool termsVisible = true.obs;
   RxString selectedPet = ''.obs;
   RxInt activeIndex = 0.obs;
   Rx<DateTime> selectedDate = DateTime.now().obs;
@@ -29,9 +33,11 @@ class ServicesController extends GetxController with SnackBarMixin {
   RxList<Map<String, dynamic>> availableSlots = <Map<String, dynamic>>[].obs;
   RxList<String> shownTime = <String>[].obs;
   var selectedPaymentMethod = "gcash".obs;
+  Rx<String?> imagePath = Rx<String?>(null);
+  RxString referenceNumber = ''.obs;
 
   Clinic? clinic;
-  List<ServicesModel> services = [];
+  RxList<ServicesModel> services = <ServicesModel>[].obs;
   List<Pet> pets = [];
   @override
   void onInit() async {
@@ -39,7 +45,7 @@ class ServicesController extends GetxController with SnackBarMixin {
     connect.baseUrl = AppStrings.baseUrl;
     await loadServices(clinicId: clinic!.id);
 
-    await loadPets(owner: (await Storage.getString(key: 'userId')).toString());
+    await loadPets(owner: settings.user!.id);
 
     view(ServicesView.loaded);
     super.onInit();
@@ -51,7 +57,7 @@ class ServicesController extends GetxController with SnackBarMixin {
       showErrorSnackbar("Failed to fetch services: ${res.statusText}");
     } else {
       var data = res.body['data'] as List;
-      services = data.map((e) => ServicesModel.fromJson(e)).toList();
+      services.value = data.map((e) => ServicesModel.fromJson(e)).toList();
     }
   }
 
@@ -84,15 +90,17 @@ class ServicesController extends GetxController with SnackBarMixin {
   }
 
   loadPets({owner}) async {
-    var res = await connect.get(
-      'pet/owner/${await Storage.getString(key: 'userId')}',
-    );
-    print(res.body);
+    var res = await connect.get('pet/owner/$owner');
     pets = res.body['data'].map<Pet>((e) => Pet.fromJson(e)).toList();
     if (pets.isNotEmpty) selectedPet(pets.map((e) => e.name).toList()[0]);
   }
 
   bookNow(id, amount) async {
+    Get.dialog(
+      const Center(child: CircularProgressIndicator()),
+      barrierDismissible: false,
+    );
+
     var body = {
       "clinic_id": clinic!.id,
       "service_id": id,
@@ -102,7 +110,7 @@ class ServicesController extends GetxController with SnackBarMixin {
                 (e) => e.name.toLowerCase() == selectedPet.value.toLowerCase(),
               )
               .id,
-      "client_id": await Storage.getString(key: 'userId'),
+      "client_id": settings.user!.id,
       "staff_id": null,
       "appointment_datetime":
           DateTime(
@@ -116,8 +124,20 @@ class ServicesController extends GetxController with SnackBarMixin {
       "notes": "any",
       "total_amount": amount,
       "status": "pending",
+      "payment_reference": referenceNumber.value,
     };
-    var res = await connect.post('booking/add', body);
+
+    // Add payment proof file if exists
+    if (imagePath.value != null) {
+      final file = File(imagePath.value!);
+      body['payment_proof'] = MultipartFile(
+        file,
+        filename: 'payment_proof.jpg',
+      );
+    }
+
+    var res = await connect.post('booking/add', FormData(body));
+    Get.back();
 
     if (res.body['status'] == 'success') {
       showSuccessSnackBar("Booking has been scheduled!");
@@ -619,7 +639,244 @@ class ServicesController extends GetxController with SnackBarMixin {
                             text: "Proceed with Booking",
                             onPressed: () {
                               Get.back();
-                              bookNow(id, price);
+                              if (selectedPaymentMethod.value == "gcash") {
+                                Get.bottomSheet(
+                                  Wrap(
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.all(20.w),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(20.r),
+                                            topRight: Radius.circular(20.r),
+                                          ),
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "GCash Payment Details",
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 18.sp,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                            SizedBox(height: 20.h),
+                                            TextField(
+                                              onChanged:
+                                                  (value) =>
+                                                      referenceNumber.value =
+                                                          value,
+                                              decoration: InputDecoration(
+                                                labelText: 'Reference Number',
+                                                labelStyle: GoogleFonts.poppins(
+                                                  color: Colors.teal,
+                                                ),
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                        8.r,
+                                                      ),
+                                                  borderSide: BorderSide(
+                                                    color: Colors.teal,
+                                                  ),
+                                                ),
+                                                focusedBorder:
+                                                    OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            8.r,
+                                                          ),
+                                                      borderSide: BorderSide(
+                                                        color: Colors.teal,
+                                                        width: 2,
+                                                      ),
+                                                    ),
+                                                enabledBorder:
+                                                    OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            8.r,
+                                                          ),
+                                                      borderSide: BorderSide(
+                                                        color: Colors.teal
+                                                            .withOpacity(0.5),
+                                                      ),
+                                                    ),
+                                                hintText:
+                                                    'Enter GCash reference number',
+                                                hintStyle: GoogleFonts.poppins(
+                                                  color: Colors.grey,
+                                                ),
+                                                prefixIcon: Icon(
+                                                  Icons.receipt,
+                                                  color: Colors.teal,
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(height: 20.h),
+                                            Obx(
+                                              () => Container(
+                                                height: 150.h,
+                                                width: double.infinity,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.grey[100],
+                                                  border: Border.all(
+                                                    color: Colors.teal
+                                                        .withOpacity(0.5),
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                        8.r,
+                                                      ),
+                                                ),
+                                                child:
+                                                    imagePath.value == null
+                                                        ? Material(
+                                                          color:
+                                                              Colors
+                                                                  .transparent,
+                                                          child: InkWell(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  8.r,
+                                                                ),
+                                                            onTap: () async {
+                                                              var img = await ImagePicker()
+                                                                  .pickImage(
+                                                                    source:
+                                                                        ImageSource
+                                                                            .gallery,
+                                                                  );
+                                                              imagePath.value =
+                                                                  img?.path;
+                                                            },
+                                                            child: Column(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: [
+                                                                Icon(
+                                                                  Icons
+                                                                      .cloud_upload_outlined,
+                                                                  size: 40.sp,
+                                                                  color:
+                                                                      Colors
+                                                                          .teal,
+                                                                ),
+                                                                SizedBox(
+                                                                  height: 8.h,
+                                                                ),
+                                                                Text(
+                                                                  'Upload Payment Screenshot',
+                                                                  style: GoogleFonts.poppins(
+                                                                    color:
+                                                                        Colors
+                                                                            .teal,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                  ),
+                                                                ),
+                                                                Text(
+                                                                  'Tap to select image',
+                                                                  style: GoogleFonts.poppins(
+                                                                    color:
+                                                                        Colors
+                                                                            .grey,
+                                                                    fontSize:
+                                                                        12.sp,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        )
+                                                        : Stack(
+                                                          children: [
+                                                            ClipRRect(
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    8.r,
+                                                                  ),
+                                                              child: Image.file(
+                                                                File(
+                                                                  imagePath
+                                                                      .value!,
+                                                                ),
+                                                                fit:
+                                                                    BoxFit
+                                                                        .cover,
+                                                                width:
+                                                                    double
+                                                                        .infinity,
+                                                              ),
+                                                            ),
+                                                            Positioned(
+                                                              top: 8,
+                                                              right: 8,
+                                                              child: IconButton(
+                                                                onPressed:
+                                                                    () =>
+                                                                        imagePath.value =
+                                                                            null,
+                                                                icon: Icon(
+                                                                  Icons.close,
+                                                                ),
+                                                                style: IconButton.styleFrom(
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  foregroundColor:
+                                                                      Colors
+                                                                          .red,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                              ),
+                                            ),
+                                            SizedBox(height: 20.h),
+                                            GradientButton(
+                                              text: "Submit Payment",
+                                              onPressed: () {
+                                                if (referenceNumber
+                                                    .value
+                                                    .isEmpty) {
+                                                  showErrorSnackbar(
+                                                    "Please enter reference number",
+                                                  );
+                                                  return;
+                                                }
+                                                if (imagePath.value == null) {
+                                                  showErrorSnackbar(
+                                                    "Please upload payment screenshot",
+                                                  );
+                                                  return;
+                                                }
+                                                bookNow(id, price);
+                                                Get.back();
+                                              },
+                                              gradientColors: [
+                                                Colors.teal,
+                                                Colors.tealAccent,
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  backgroundColor: Colors.transparent,
+                                  isScrollControlled: true,
+                                );
+                              } else {
+                                bookNow(id, price);
+                                Get.back();
+                              }
                             },
                             gradientColors: [Colors.teal, Colors.tealAccent],
                           ),

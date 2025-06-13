@@ -50,11 +50,45 @@ class DashboardScreen extends GetView<DashboardController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomText(
-                  text: "PetVax Dashboard",
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomText(
+                      text: "PetVax Dashboard",
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                    Stack(
+                      children: [
+                        IconButton(
+                          icon: const Icon(
+                            Icons.notifications_outlined,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                          onPressed: () {
+                            // Handle notification tap
+                          },
+                        ),
+                        Positioned(
+                          right: 10,
+                          bottom: 10,
+                          child: Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                width: 2.w,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
                 SizedBox(height: 10.h),
                 // Search Bar
@@ -207,73 +241,78 @@ class DashboardScreen extends GetView<DashboardController> {
                 }
 
                 final pet = controller.settings.pets[index];
-                return Container(
-                  margin: EdgeInsets.only(right: 12.w),
-                  padding: EdgeInsets.all(12.w),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xFFE5E7EB)),
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 40.w,
-                        height: 40.w,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20.r),
-                          gradient:
+                return GestureDetector(
+                  onTap: () {
+                    Get.toNamed('/view-pet', arguments: pet);
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(right: 12.w),
+                    padding: EdgeInsets.all(12.w),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 40.w,
+                          height: 40.w,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20.r),
+                            gradient:
+                                pet.image == null
+                                    ? const LinearGradient(
+                                      colors: [
+                                        Color(0xFFA855F7),
+                                        Color(0xFFEC4899),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    )
+                                    : null,
+                            image:
+                                pet.image != null
+                                    ? DecorationImage(
+                                      image: NetworkImage(
+                                        '${AppStrings.imageUrl}${pet.image}',
+                                      ),
+                                      fit: BoxFit.cover,
+                                    )
+                                    : null,
+                          ),
+                          child:
                               pet.image == null
-                                  ? const LinearGradient(
-                                    colors: [
-                                      Color(0xFFA855F7),
-                                      Color(0xFFEC4899),
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  )
-                                  : null,
-                          image:
-                              pet.image != null
-                                  ? DecorationImage(
-                                    image: NetworkImage(
-                                      '${AppStrings.imageUrl}${pet.image}',
+                                  ? Center(
+                                    child: CustomText(
+                                      text: pet.name[0].toUpperCase(),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
                                     ),
-                                    fit: BoxFit.cover,
                                   )
                                   : null,
                         ),
-                        child:
-                            pet.image == null
-                                ? Center(
-                                  child: CustomText(
-                                    text: pet.name[0].toUpperCase(),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                )
-                                : null,
-                      ),
-                      SizedBox(width: 10.w),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CustomText(
-                            text: pet.name,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: const Color(0xFF1F2937),
-                          ),
-                          CustomText(
-                            text: pet.species,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w400,
-                            color: const Color(0xFF6B7280),
-                          ),
-                        ],
-                      ),
-                    ],
+                        SizedBox(width: 10.w),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CustomText(
+                              text: pet.name,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: const Color(0xFF1F2937),
+                            ),
+                            CustomText(
+                              text: pet.species,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w400,
+                              color: const Color(0xFF6B7280),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },

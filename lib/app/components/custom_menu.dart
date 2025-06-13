@@ -34,7 +34,7 @@ class CustomMenu extends StatelessWidget {
           icon: Icons.settings,
           color: Colors.pinkAccent,
           onTap: () {
-            // todo
+            Get.toNamed('/rule-base');
           },
         ),
         CircularMenuItem(

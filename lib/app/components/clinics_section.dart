@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:petvax/app/constants/strings.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/clinic_model.dart';
 import '../widgets/custom_text.dart';
@@ -104,7 +105,8 @@ class ClinicsSection extends StatelessWidget {
                               top: Radius.circular(8.r),
                             ),
                             child: Image.network(
-                              clinic.image,
+                              AppStrings.imageUrl + clinic.image,
+
                               height:
                                   imageHeight ??
                                   (height == null ? 100.h : 125.h),

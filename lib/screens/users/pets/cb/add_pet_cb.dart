@@ -7,8 +7,6 @@ import 'package:petvax/app/constants/strings.dart';
 import 'package:petvax/app/mixins/snackbar.dart';
 import 'package:petvax/screens/all/utility/settings_controller.dart';
 
-import '../../../../app/services/storage_service.dart';
-
 enum AddPetView { loading, loaded, error }
 
 class AddPetController extends GetxController with SnackBarMixin {
@@ -191,7 +189,7 @@ class AddPetController extends GetxController with SnackBarMixin {
         'species': specie.value,
         'breed': breed.value.isEmpty ? null : breed.value,
         'birth_date': birthDate.value?.toIso8601String().split('T')[0],
-        'clinic_id': 2,
+        'clinic_id': 7,
         'owner_id': settings.user!.id,
         'weight': weight.value.isEmpty ? null : double.tryParse(weight.value),
         'gender': selectedGender.value.isEmpty ? null : selectedGender.value,

@@ -6,7 +6,6 @@ import 'package:petvax/app/models/appointment_model.dart';
 import 'package:petvax/app/models/clinic_model.dart';
 import 'package:petvax/app/models/pet_model.dart';
 import 'package:petvax/screens/all/utility/settings_controller.dart';
-
 import '../../../app/services/storage_service.dart';
 
 enum SplashView { loading, loaded, error }
@@ -22,6 +21,7 @@ class SplashController extends GetxController {
     final settings = Get.find<Settings>();
     loadingText("Loading user data");
     var user = await Storage.getUser();
+
     if (user != null) {
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
         if (dots.value.length == 3) {
@@ -47,14 +47,19 @@ class SplashController extends GetxController {
       );
       dots.value = "";
       loadingText("Loading appointments data");
+
       settings.appointments(
-        (await GetConnect().get('${AppStrings.baseUrl}booking/user/${user.id}'))
-            .body['data']
-            ?.map<Appointment>((e) => Appointment.fromJson(e))
-            .toList(),
+        (await GetConnect().get(
+          '${AppStrings.baseUrl}booking/${user.roleID == 4 ? "veterinarian" : "user"}/${user.id}',
+        )).body['data']?.map<Appointment>((e) => Appointment.fromJson(e)).toList(),
       );
+
       _timer?.cancel();
-      Get.offAndToNamed('/home');
+      if (user.roleID == 5) {
+        Get.offAndToNamed('/home');
+      } else if (user.roleID == 4) {
+        Get.offAndToNamed('/vet-home');
+      }
     } else {
       Get.offAndToNamed('/auth');
     }

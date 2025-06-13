@@ -192,7 +192,7 @@ class AuthController extends GetxController {
               onPrimary: () async {
                 UserModel user = UserModel.fromJson(res.body['user']);
                 await Storage.saveUser(user: user);
-                Get.offAndToNamed('/home');
+                Get.offAndToNamed('/splash');
               },
               onClose: () {
                 Get.back();

@@ -1,16 +1,10 @@
-// Dependencies to add in pubspec.yaml:
-// dependencies:
-//   flutter_screenutil: ^5.9.0
-//   get: ^4.6.6
-//   google_fonts: ^6.1.0
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:petvax/app/components/custom_menu.dart';
-import 'package:petvax/app/services/storage_service.dart';
 import 'package:petvax/screens/all/profile/profile_cb.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Main Screen
 class PetOwnerProfileScreen extends GetView<PetOwnerController> {
@@ -95,7 +89,7 @@ class PetOwnerProfileScreen extends GetView<PetOwnerController> {
                       SizedBox(width: 5.w),
                       GestureDetector(
                         onTap: () async {
-                          await Storage.deleteUser();
+                          (await SharedPreferences.getInstance()).clear();
                           Get.offAndToNamed('/auth');
                         },
                         child: Container(
@@ -132,16 +126,20 @@ class PetOwnerProfileScreen extends GetView<PetOwnerController> {
                             width: 4.w,
                           ),
                           image: DecorationImage(
-                            image: NetworkImage(controller.user!.avatar),
+                            image: NetworkImage(
+                              controller.user!.avatar == ''
+                                  ? 'https://picsum.photos/200'
+                                  : controller.user!.avatar,
+                            ),
                             fit: BoxFit.cover,
                           ),
                         ),
                       ),
                       Positioned(
-                        bottom: -4.h,
-                        right: -4.w,
+                        bottom: 2.h,
+                        right: 2.w,
                         child: Container(
-                          padding: EdgeInsets.all(6.w),
+                          padding: EdgeInsets.all(3.w),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
@@ -185,7 +183,9 @@ class PetOwnerProfileScreen extends GetView<PetOwnerController> {
                             ),
                             SizedBox(width: 4.w),
                             Text(
-                              controller.user!.address,
+                              controller.user!.address == ''
+                                  ? "Not set"
+                                  : controller.user!.address,
                               style: GoogleFonts.poppins(
                                 color: Colors.white.withOpacity(0.8),
                                 fontSize: 14.sp,
@@ -214,7 +214,7 @@ class PetOwnerProfileScreen extends GetView<PetOwnerController> {
                       child: Column(
                         children: [
                           Text(
-                            'tempo: 0',
+                            '${controller.settings.appointments.length}',
                             style: GoogleFonts.poppins(
                               color: Colors.white,
                               fontSize: 24.sp,
@@ -235,7 +235,7 @@ class PetOwnerProfileScreen extends GetView<PetOwnerController> {
                       child: Column(
                         children: [
                           Text(
-                            '${controller.pets.length}',
+                            '${controller.settings.pets.length}',
                             style: GoogleFonts.poppins(
                               color: Colors.white,
                               fontSize: 24.sp,
@@ -354,7 +354,7 @@ class PetOwnerProfileScreen extends GetView<PetOwnerController> {
 
   Widget _buildContactInfo() {
     return Padding(
-      padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 24.h),
+      padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 6.h),
       child: Container(
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
@@ -406,7 +406,9 @@ class PetOwnerProfileScreen extends GetView<PetOwnerController> {
                       ),
                     ),
                     Text(
-                      controller.user!.phone,
+                      controller.user!.phone == ''
+                          ? "Not set"
+                          : controller.user!.phone,
                       style: GoogleFonts.poppins(
                         color: Colors.grey.shade900,
                         fontSize: 14.sp,
@@ -463,7 +465,7 @@ class PetOwnerProfileScreen extends GetView<PetOwnerController> {
 
   Widget _buildTabs() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 10.h),
       child: Container(
         padding: EdgeInsets.all(4.w),
         decoration: BoxDecoration(
@@ -496,48 +498,11 @@ class PetOwnerProfileScreen extends GetView<PetOwnerController> {
                               : null,
                     ),
                     child: Text(
-                      'My Pets (${controller.pets.length})',
+                      'My Pets (${controller.settings.pets.length})',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
                         color:
                             controller.activeTab.value == 'pets'
-                                ? Colors.grey.shade900
-                                : Colors.grey.shade600,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => controller.changeTab('favorites'),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 8.h),
-                    decoration: BoxDecoration(
-                      color:
-                          controller.activeTab.value == 'favorites'
-                              ? Colors.white
-                              : Colors.transparent,
-                      borderRadius: BorderRadius.circular(8.r),
-                      boxShadow:
-                          controller.activeTab.value == 'favorites'
-                              ? [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 4,
-                                  offset: Offset(0, 2),
-                                ),
-                              ]
-                              : null,
-                    ),
-                    child: Text(
-                      'Favorites',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.poppins(
-                        color:
-                            controller.activeTab.value == 'favorites'
                                 ? Colors.grey.shade900
                                 : Colors.grey.shade600,
                         fontSize: 14.sp,
@@ -589,14 +554,15 @@ class PetOwnerProfileScreen extends GetView<PetOwnerController> {
               ),
             ],
           ),
-          SizedBox(height: 16.h),
+          //SizedBox(height: 16.h),
           ListView.separated(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
-            itemCount: controller.pets.length,
-            separatorBuilder: (context, index) => SizedBox(height: 16.h),
+            itemCount: controller.settings.pets.length,
+            padding: EdgeInsets.symmetric(vertical: 20.h),
+            separatorBuilder: (context, index) => SizedBox(height: 10.h),
             itemBuilder: (context, index) {
-              final pet = controller.pets[index];
+              final pet = controller.settings.pets[index];
               return Container(
                 padding: EdgeInsets.all(16.w),
                 decoration: BoxDecoration(
@@ -618,7 +584,9 @@ class PetOwnerProfileScreen extends GetView<PetOwnerController> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12.r),
                         image: DecorationImage(
-                          image: NetworkImage(pet.image),
+                          image: NetworkImage(
+                            pet.image ?? 'https://placedog.net/500',
+                          ),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -651,7 +619,7 @@ class PetOwnerProfileScreen extends GetView<PetOwnerController> {
                           ),
                           SizedBox(height: 4.h),
                           Text(
-                            '${pet.type} • ${pet.age}',
+                            '${pet.species} • ${pet.age}',
                             style: GoogleFonts.poppins(
                               color: Colors.grey.shade600,
                               fontSize: 14.sp,
@@ -680,13 +648,13 @@ class PetOwnerProfileScreen extends GetView<PetOwnerController> {
                             ],
                           ),
                           SizedBox(height: 3.h),
-                          Text(
-                            'Last booking: ${pet.lastBooking}',
-                            style: GoogleFonts.poppins(
-                              color: Colors.grey.shade500,
-                              fontSize: 12.sp,
-                            ),
-                          ),
+                          // Text(
+                          //   'Last booking: ${pet.lastBooking}',
+                          //   style: GoogleFonts.poppins(
+                          //     color: Colors.grey.shade500,
+                          //     fontSize: 12.sp,
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),
