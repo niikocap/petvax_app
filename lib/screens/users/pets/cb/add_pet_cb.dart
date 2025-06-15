@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:petvax/app/constants/strings.dart';
 import 'package:petvax/app/mixins/snackbar.dart';
+import 'package:petvax/app/models/pet_model.dart';
 import 'package:petvax/screens/all/utility/settings_controller.dart';
 
 enum AddPetView { loading, loaded, error }
@@ -13,6 +14,7 @@ class AddPetController extends GetxController with SnackBarMixin {
   var view = AddPetView.loading.obs;
   Settings settings = Get.find<Settings>();
   GetConnect connect = GetConnect();
+  Pet? pet;
   // Form data
   final name = "".obs;
   final specie = "".obs;
@@ -22,6 +24,18 @@ class AddPetController extends GetxController with SnackBarMixin {
   @override
   void onInit() async {
     super.onInit();
+    pet = Get.arguments;
+    if (pet != null) {
+      name.value = pet!.name;
+      specie.value = pet!.species;
+      breed.value = pet!.breed ?? "";
+      weight.value = pet!.weight.toString();
+      selectedGender.value = pet!.gender ?? "Male";
+      selectedImage.value =
+          pet!.image != null
+              ? await _downloadAndSaveImage(AppStrings.imageUrl + pet!.image!)
+              : null;
+    }
     connect.baseUrl = AppStrings.baseUrl;
     // Add listeners for real-time validation
     name.listen((value) => validateName());
@@ -74,6 +88,28 @@ class AddPetController extends GetxController with SnackBarMixin {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       selectedImage.value = File(pickedFile.path);
+    }
+  }
+
+  Future<File?> _downloadAndSaveImage(String imageUrl) async {
+    try {
+      final response = await connect.get(imageUrl);
+      if (response.status.isOk) {
+        // Create a temporary file
+        final tempDir = Directory.systemTemp;
+        final tempFile = File(
+          '${tempDir.path}/temp_image_${DateTime.now().millisecondsSinceEpoch}.jpg',
+        );
+
+        // Write image data to file
+        await tempFile.writeAsBytes(response.bodyBytes as List<int>);
+        print(tempFile.path);
+        return tempFile;
+      }
+      return null;
+    } catch (e) {
+      print('Error downloading image: $e');
+      return null;
     }
   }
 
@@ -194,19 +230,22 @@ class AddPetController extends GetxController with SnackBarMixin {
         'weight': weight.value.isEmpty ? null : double.tryParse(weight.value),
         'gender': selectedGender.value.isEmpty ? null : selectedGender.value,
       };
-
-      var res = await connect.post('pet/add', formData);
+      var endPoint = pet != null ? 'pet/edit/${pet!.id}' : 'pet/add';
+      var res = await connect.post(AppStrings.baseUrl + endPoint, formData);
 
       if (res.body['status'] != 'success') {
         throw Exception('Failed to add pet: ${res.body['message']}');
       } else {
         await settings.fetchPets();
-        showSuccessSnackBar("Pet added successfully!");
+        resetForm();
+        showSuccessSnackBar(
+          pet != null ? "Pet updated successfully!" : "Pet added successfully!",
+        );
       }
 
       // Reset form
-      resetForm();
-      Get.back();
+
+      //Get.back();
     } catch (e) {
       showErrorSnackbar(e.toString());
     } finally {

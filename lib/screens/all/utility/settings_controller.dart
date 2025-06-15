@@ -4,6 +4,7 @@ import 'package:petvax/app/constants/strings.dart';
 import 'package:petvax/app/mixins/snackbar.dart';
 import 'package:petvax/app/models/appointment_model.dart';
 import 'package:petvax/app/models/clinic_model.dart';
+import 'package:petvax/app/models/notification_model.dart';
 import 'package:petvax/app/models/pet_model.dart';
 import 'package:petvax/app/models/user_model.dart';
 
@@ -13,6 +14,7 @@ class Settings extends GetxController with SnackBarMixin {
   RxList<Pet> pets = <Pet>[].obs;
   RxList<Clinic> clinics = <Clinic>[].obs;
   RxList<Appointment> appointments = <Appointment>[].obs;
+  RxList<NotificationItem> notifications = <NotificationItem>[].obs;
   Position? position;
 
   @override
@@ -58,6 +60,32 @@ class Settings extends GetxController with SnackBarMixin {
     } else {
       var data = res.body['data'] as List;
       clinics.value = data.map((e) => Clinic.fromJson(e)).toList();
+    }
+  }
+
+  fetchNotifications({id}) async {
+    id ??= user!.id;
+    var res = await connect.get('notification/user/$id');
+    print("notif: ${res.body}");
+    if (res.status.hasError) {
+      showErrorSnackbar("Failed to fetch notifications: ${res.statusText}");
+    } else {
+      var data = res.body['data'] as List;
+      notifications.value =
+          data.map((e) {
+            if (e['type'] == 'settings') {
+              e['icon'] = 'gear';
+              e['iconColor'] = 'blue';
+            } else if (e['type'] == 'booking') {
+              e['icon'] = 'calendar';
+              e['iconColor'] =
+                  e['title'].toString().toLowerCase().contains('decline')
+                      ? 'red'
+                      : 'green';
+            }
+
+            return NotificationItem.fromJson(e);
+          }).toList();
     }
   }
 

@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 import 'package:petvax/screens/all/auth/auth.dart';
 import 'package:petvax/screens/all/auth/auth_cb.dart';
+import 'package:petvax/screens/all/notification/notification.dart';
+import 'package:petvax/screens/all/notification/notification_cb.dart';
 import 'package:petvax/screens/all/profile/profile.dart';
 import 'package:petvax/screens/all/profile/profile_cb.dart';
 import 'package:petvax/screens/all/splash/splash.dart';
@@ -64,5 +66,10 @@ appRoutes() => [
     name: '/rule-base',
     page: () => RuleBase(),
     binding: RuleBaseBinding(),
+  ),
+  GetPage(
+    name: '/notifications',
+    page: () => NotificationScreen(),
+    binding: NotificationBinding(),
   ),
 ];

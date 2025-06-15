@@ -11,6 +11,7 @@ enum ClinicsView { loading, loaded, error }
 class ClinicsController extends GetxController with SnackBarMixin {
   var view = ClinicsView.loading.obs;
   var searchQuery = TextEditingController();
+  var isTagSearchEnabled = false.obs;
   Settings settings = Get.find<Settings>();
   var currentSort = "Nearest First".obs;
   RxBool showOpenOnly = false.obs;
@@ -35,6 +36,11 @@ class ClinicsController extends GetxController with SnackBarMixin {
         settings.clinics.where((clinic) {
           final name = clinic.name.toLowerCase();
           final address = clinic.location.toLowerCase();
+
+          if (isTagSearchEnabled.value) {
+            return clinic.tags.any((tag) => tag.toLowerCase().contains(query));
+          }
+
           return name.contains(query) || address.contains(query);
         }).toList();
   }

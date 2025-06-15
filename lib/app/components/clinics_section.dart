@@ -16,6 +16,7 @@ class ClinicsSection extends StatelessWidget {
   final bool showHeader;
   final Position position;
   final double? padding;
+  final int? limit;
 
   const ClinicsSection({
     super.key,
@@ -26,6 +27,7 @@ class ClinicsSection extends StatelessWidget {
     this.showHeader = true,
     this.padding,
     required this.position,
+    this.limit,
   });
 
   @override
@@ -80,7 +82,10 @@ class ClinicsSection extends StatelessWidget {
             height: height ?? 235.h,
             child: ListView.builder(
               scrollDirection: axis ?? Axis.horizontal,
-              itemCount: clinics.length,
+              itemCount:
+                  limit != null
+                      ? (limit! > clinics.length ? clinics.length : limit!)
+                      : clinics.length,
               itemBuilder: (context, index) {
                 final clinic = clinics[index];
                 return Column(

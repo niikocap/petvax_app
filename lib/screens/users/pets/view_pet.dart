@@ -114,19 +114,20 @@ class ViewPet extends GetView<ViewPetController> {
                         ),
                       ),
                     ),
-                    Positioned(
-                      bottom: -2.h,
-                      right: -2.w,
-                      child: Container(
-                        width: 24.w,
-                        height: 24.w,
-                        decoration: BoxDecoration(
-                          color: Colors.green.shade500,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2.w),
-                        ),
-                      ),
-                    ),
+
+                    // Positioned(
+                    //   bottom: -2.h,
+                    //   right: -2.w,
+                    //   child: Container(
+                    //     width: 24.w,
+                    //     height: 24.w,
+                    //     decoration: BoxDecoration(
+                    //       color: Colors.green.shade500,
+                    //       shape: BoxShape.circle,
+                    //       border: Border.all(color: Colors.white, width: 2.w),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
                 SizedBox(width: 16.w),
@@ -478,24 +479,24 @@ class ViewPet extends GetView<ViewPetController> {
                 ),
               ],
             ),
-            ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.indigo.shade600,
-                foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-              ),
-              child: Text(
-                'View All',
-                style: GoogleFonts.poppins(
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
+            // ElevatedButton(
+            //   onPressed: () {},
+            //   style: ElevatedButton.styleFrom(
+            //     backgroundColor: Colors.indigo.shade600,
+            //     foregroundColor: Colors.white,
+            //     padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+            //     shape: RoundedRectangleBorder(
+            //       borderRadius: BorderRadius.circular(8.r),
+            //     ),
+            //   ),
+            //   child: Text(
+            //     'View All',
+            //     style: GoogleFonts.poppins(
+            //       fontSize: 12.sp,
+            //       fontWeight: FontWeight.w500,
+            //     ),
+            //   ),
+            // ),
           ],
         ),
         SizedBox(height: 16.h),
@@ -523,7 +524,7 @@ class ViewPet extends GetView<ViewPetController> {
           )
         else
           ...controller.medicalHistory
-              .take(10)
+              .take(5)
               .map((record) => _buildMedicalRecord(record)),
       ],
     );
@@ -532,111 +533,259 @@ class ViewPet extends GetView<ViewPetController> {
   Widget _buildMedicalRecord(MedicalRecord record) {
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.only(bottom: 12.h),
+      margin: EdgeInsets.only(bottom: 16.h),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            offset: Offset(0, 2),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 8,
+            offset: Offset(0, 4),
           ),
         ],
       ),
-      child: Padding(
-        padding: EdgeInsets.all(16.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      child: Column(
+        children: [
+          // Header Section with gradient
+          Container(
+            padding: EdgeInsets.all(16.w),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.indigo.shade50, Colors.white],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(16.r),
+                topRight: Radius.circular(16.r),
+              ),
+            ),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Text(
-                      controller.getTypeIcon(record.type),
-                      style: TextStyle(fontSize: 24.sp),
-                    ),
-                    SizedBox(width: 12.w),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          record.type,
-                          style: GoogleFonts.poppins(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey.shade800,
-                          ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(8.w),
+                        decoration: BoxDecoration(
+                          color: Colors.indigo.shade100,
+                          shape: BoxShape.circle,
                         ),
+                        child: Icon(
+                          Icons.local_hospital_rounded,
+                          color: Colors.indigo.shade700,
+                          size: 20.w,
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              record.clinic.name,
+                              style: GoogleFonts.poppins(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.indigo.shade800,
+                              ),
+                            ),
+                            Text(
+                              record.veterinarian != null
+                                  ? "Dr. ${record.veterinarian!.name}"
+                                  : "N/A",
+                              style: GoogleFonts.poppins(
+                                fontSize: 13.sp,
+                                color: Colors.indigo.shade600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.w,
+                    vertical: 6.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.indigo.shade50,
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
+                  child: Text(
+                    controller.formatDate(record.treatmentDate),
+                    style: GoogleFonts.poppins(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.indigo.shade700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Content Section
+          Padding(
+            padding: EdgeInsets.all(16.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildInfoSection("Diagnosis", record.diagnosis),
+                SizedBox(height: 16.h),
+                _buildInfoSection("Treatment", record.treatment),
+
+                if (record.inventoryItem != null) ...[
+                  SizedBox(height: 12.h),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12.w,
+                      vertical: 8.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.medical_services_outlined,
+                          size: 18.w,
+                          color: Colors.green.shade700,
+                        ),
+                        SizedBox(width: 8.w),
                         Text(
-                          record.veterinarian,
+                          "Items used: ${record.inventoryItem!['name']}",
                           style: GoogleFonts.poppins(
-                            fontSize: 12.sp,
-                            color: Colors.grey.shade500,
+                            fontSize: 13.sp,
+                            color: Colors.green.shade700,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
                     ),
-                  ],
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                  decoration: BoxDecoration(
-                    color: controller.getStatusBgColor(record.status),
-                    borderRadius: BorderRadius.circular(20.r),
                   ),
-                  child: Text(
-                    record.status,
-                    style: GoogleFonts.poppins(
-                      fontSize: 10.sp,
-                      fontWeight: FontWeight.w500,
-                      color: controller.getStatusColor(record.status),
+                ],
+
+                if (record.followup != null) ...[
+                  SizedBox(height: 12.h),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12.w,
+                      vertical: 8.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.shade50,
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.event_repeat,
+                          size: 18.w,
+                          color: Colors.orange.shade700,
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          "Follow-up: ${controller.formatDate(record.followup!)}",
+                          style: GoogleFonts.poppins(
+                            fontSize: 13.sp,
+                            color: Colors.orange.shade700,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
+                ],
+
+                if (record.notes.isNotEmpty) ...[
+                  SizedBox(height: 16.h),
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(16.w),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(12.r),
+                      border: Border.all(color: Colors.grey.shade200),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.note_alt_outlined,
+                              size: 18.w,
+                              color: Colors.grey.shade700,
+                            ),
+                            SizedBox(width: 8.w),
+                            Text(
+                              "Additional Notes",
+                              style: GoogleFonts.poppins(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey.shade800,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 8.h),
+                        Text(
+                          record.notes,
+                          style: GoogleFonts.poppins(
+                            fontSize: 13.sp,
+                            color: Colors.grey.shade700,
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
             ),
-            SizedBox(height: 8.h),
-            Text(
-              record.description,
-              style: GoogleFonts.poppins(
-                fontSize: 12.sp,
-                color: Colors.grey.shade600,
-              ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoSection(String title, String content) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade800,
             ),
-            SizedBox(height: 8.h),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.calendar_today,
-                      size: 16.w,
-                      color: Colors.grey.shade500,
-                    ),
-                    SizedBox(width: 4.w),
-                    Text(
-                      controller.formatDate(record.date),
-                      style: GoogleFonts.poppins(
-                        fontSize: 12.sp,
-                        color: Colors.grey.shade500,
-                      ),
-                    ),
-                  ],
-                ),
-                Icon(
-                  Icons.chevron_right,
-                  size: 16.w,
-                  color: Colors.grey.shade400,
-                ),
-              ],
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            content,
+            style: GoogleFonts.poppins(
+              fontSize: 13.sp,
+              color: Colors.grey.shade700,
+              height: 1.5,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

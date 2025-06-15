@@ -3,8 +3,6 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:petvax/app/constants/strings.dart';
 import 'package:petvax/app/models/appointment_model.dart';
-import 'package:petvax/app/models/clinic_model.dart';
-import 'package:petvax/app/models/pet_model.dart';
 import 'package:petvax/screens/all/utility/settings_controller.dart';
 import '../../../app/services/storage_service.dart';
 
@@ -23,6 +21,7 @@ class SplashController extends GetxController {
     var user = await Storage.getUser();
 
     if (user != null) {
+      print(user.id);
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
         if (dots.value.length == 3) {
           dots.value = ".";
@@ -32,33 +31,27 @@ class SplashController extends GetxController {
       });
       settings.user = user;
       loadingText("Loading pets data");
-
-      settings.pets(
-        (await GetConnect().get(
-          '${AppStrings.baseUrl}pet/owner/${user.id}',
-        )).body['data']?.map<Pet>((e) => Pet.fromJson(e)).toList(),
-      );
+      await settings.fetchPets(id: user.id);
       dots.value = "";
       loadingText("Loading clinics data");
-      settings.clinics(
-        (await GetConnect().get(
-          '${AppStrings.baseUrl}clinic/all',
-        )).body['data']?.map<Clinic>((e) => Clinic.fromJson(e)).toList(),
-      );
+      await settings.fetchClinics();
       dots.value = "";
       loadingText("Loading appointments data");
-
       settings.appointments(
         (await GetConnect().get(
           '${AppStrings.baseUrl}booking/${user.roleID == 4 ? "veterinarian" : "user"}/${user.id}',
         )).body['data']?.map<Appointment>((e) => Appointment.fromJson(e)).toList(),
       );
+      dots.value = "";
+      loadingText("Loading notifcations data");
+
+      await settings.fetchNotifications(id: user.id);
 
       _timer?.cancel();
-      if (user.roleID == 5) {
-        Get.offAndToNamed('/home');
-      } else if (user.roleID == 4) {
+      if (user.roleID == 4) {
         Get.offAndToNamed('/vet-home');
+      } else {
+        Get.offAndToNamed('/home');
       }
     } else {
       Get.offAndToNamed('/auth');

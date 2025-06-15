@@ -31,7 +31,7 @@ class Appointment {
       petName: json['pet']['name'],
       amount: json['total_amount'].toString(),
       status: json['status'],
-      rating: json['rating'] ?? 0,
+      rating: json['stars'] ?? 0,
     );
   }
 }

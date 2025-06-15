@@ -46,36 +46,7 @@ class PetProfileController extends GetxController {
   //       address: '456 Vet Avenue, City, State 12345',
   //     ).obs;
 
-  final medicalHistory =
-      <MedicalRecord>[
-        MedicalRecord(
-          id: 1,
-          date: '2024-05-15',
-          type: 'Vaccination',
-          description: 'Annual DHPP booster vaccination',
-          veterinarian: 'Dr. Emily Chen',
-          notes: 'No adverse reactions observed',
-          status: 'completed',
-        ),
-        MedicalRecord(
-          id: 2,
-          date: '2024-03-22',
-          type: 'Check-up',
-          description: 'Routine wellness examination',
-          veterinarian: 'Dr. Emily Chen',
-          notes: 'Healthy weight, good dental condition',
-          status: 'completed',
-        ),
-        MedicalRecord(
-          id: 3,
-          date: '2024-01-10',
-          type: 'Treatment',
-          description: 'Ear infection treatment',
-          veterinarian: 'Dr. Emily Chen',
-          notes: 'Prescribed antibiotic drops, follow-up in 2 weeks',
-          status: 'completed',
-        ),
-      ].obs;
+  final medicalHistory = <MedicalRecord>[].obs;
 
   final medications =
       <Medication>[

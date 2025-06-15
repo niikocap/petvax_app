@@ -239,7 +239,10 @@ class Services extends GetView<ServicesController> {
                             children: [
                               Icon(Icons.star, color: Colors.yellow),
                               SizedBox(width: 5.w),
-                              CustomText(text: "4.3 stars"),
+                              CustomText(
+                                text:
+                                    "${controller.clinic!.averageStars} stars",
+                              ),
                             ],
                           ),
                         ],

@@ -29,7 +29,7 @@ class ViewPetController extends GetxController {
   }
 
   String formatDate(String dateString) {
-    final date = DateTime.parse(dateString);
+    final date = DateTime.tryParse(dateString) ?? DateTime.now(); //todo
     return "${_getMonthName(date.month)} ${date.day}, ${date.year}";
   }
 
@@ -75,18 +75,20 @@ class ViewPetController extends GetxController {
   }
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
     connect.baseUrl = AppStrings.baseUrl;
 
     pet.value = Get.arguments;
     print(pet.value.toJson());
-    loadMedicalHistory();
+    await loadMedicalHistory();
   }
 
   Future<void> loadMedicalHistory() async {
     try {
       final response = await connect.get('medical-history/${pet.value.id}');
+
+      print(response.body);
       if (response.statusCode == 200) {
         var data = response.body['data'];
         medicalHistory.value =

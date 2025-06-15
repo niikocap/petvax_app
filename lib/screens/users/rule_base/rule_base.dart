@@ -519,10 +519,20 @@ class DiagnosticScreen extends StatelessWidget {
           ),
         ),
         SizedBox(height: 40.h),
-        _buildAnswerButton(
-          text: 'Start Over',
-          color: controller.petColor,
-          onPressed: controller.reset,
+        Column(
+          children: [
+            _buildAnswerButton(
+              text: 'Start Over',
+              color: controller.petColor,
+              onPressed: controller.reset,
+            ),
+            SizedBox(height: 16.h),
+            _buildAnswerButton(
+              text: 'Find Nearby Clinics',
+              color: Colors.teal,
+              onPressed: () => Get.offAndToNamed('/clinics'),
+            ),
+          ],
         ),
       ],
     );

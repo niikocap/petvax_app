@@ -68,24 +68,26 @@ class DashboardScreen extends GetView<DashboardController> {
                             size: 28,
                           ),
                           onPressed: () {
-                            // Handle notification tap
+                            Get.toNamed('/notifications');
                           },
                         ),
-                        Positioned(
-                          right: 10,
-                          bottom: 10,
-                          child: Container(
-                            padding: const EdgeInsets.all(5),
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                width: 2.w,
-                                color: Colors.white,
+                        controller.settings.notifications.isNotEmpty
+                            ? Positioned(
+                              right: 10,
+                              bottom: 10,
+                              child: Container(
+                                padding: const EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    width: 2.w,
+                                    color: Colors.white,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        ),
+                            )
+                            : Container(),
                       ],
                     ),
                   ],
@@ -121,6 +123,7 @@ class DashboardScreen extends GetView<DashboardController> {
                   Obx(
                     () => ClinicsSection(
                       clinics: controller.settings.clinics.value,
+                      limit: 5,
                       padding: 0,
                       position: controller.position!,
                     ),
@@ -135,6 +138,7 @@ class DashboardScreen extends GetView<DashboardController> {
                   Obx(
                     () => AppointmentsSection(
                       appointments: controller.settings.appointments.value,
+                      limit: 3,
                     ),
                   ),
                 ],
@@ -192,7 +196,10 @@ class DashboardScreen extends GetView<DashboardController> {
             height: 75.h,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: controller.settings.pets.length + 1,
+              itemCount:
+                  controller.settings.pets.length >= 4
+                      ? 4
+                      : controller.settings.pets.length + 1,
               itemBuilder: (context, index) {
                 if (index == controller.settings.pets.length) {
                   // Add Pet Card

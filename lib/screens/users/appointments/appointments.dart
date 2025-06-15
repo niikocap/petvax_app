@@ -70,7 +70,162 @@ class Appointments extends GetView<AppointmentsController> {
                     Row(
                       children: [
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: Get.context!,
+                              builder:
+                                  (context) => Container(
+                                    padding: EdgeInsets.all(16.w),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        CustomText(
+                                          text: "Filter Appointments",
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        SizedBox(height: 16.h),
+                                        Obx(
+                                          () => Wrap(
+                                            spacing: 8.w,
+                                            runSpacing: 8.h,
+                                            children: [
+                                              FilterChip(
+                                                label: CustomText(
+                                                  text: "Completed",
+                                                ),
+                                                selected:
+                                                    controller
+                                                        .selectedFilter
+                                                        .value ==
+                                                    "completed",
+                                                onSelected: (selected) {
+                                                  controller
+                                                      .selectedFilter
+                                                      .value = selected
+                                                          ? "completed"
+                                                          : "";
+                                                  controller
+                                                      .filterAppointments();
+                                                },
+                                              ),
+                                              FilterChip(
+                                                label: CustomText(
+                                                  text: "Confirmed",
+                                                ),
+                                                selected:
+                                                    controller
+                                                        .selectedFilter
+                                                        .value ==
+                                                    "confirmed",
+                                                onSelected: (selected) {
+                                                  controller
+                                                      .selectedFilter
+                                                      .value = selected
+                                                          ? "confirmed"
+                                                          : "";
+                                                  controller
+                                                      .filterAppointments();
+                                                },
+                                              ),
+                                              FilterChip(
+                                                label: CustomText(
+                                                  text: "Pending",
+                                                ),
+                                                selected:
+                                                    controller
+                                                        .selectedFilter
+                                                        .value ==
+                                                    "pending",
+                                                onSelected: (selected) {
+                                                  controller
+                                                          .selectedFilter
+                                                          .value =
+                                                      selected ? "pending" : "";
+                                                  controller
+                                                      .filterAppointments();
+                                                },
+                                              ),
+                                              FilterChip(
+                                                label: CustomText(
+                                                  text: "Declined",
+                                                ),
+                                                selected:
+                                                    controller
+                                                        .selectedFilter
+                                                        .value ==
+                                                    "declined",
+                                                onSelected: (selected) {
+                                                  controller
+                                                      .selectedFilter
+                                                      .value = selected
+                                                          ? "declined"
+                                                          : "";
+                                                  controller
+                                                      .filterAppointments();
+                                                },
+                                              ),
+                                              FilterChip(
+                                                label: CustomText(
+                                                  text: "Cancelled",
+                                                ),
+                                                selected:
+                                                    controller
+                                                        .selectedFilter
+                                                        .value ==
+                                                    "cancelled",
+                                                onSelected: (selected) {
+                                                  controller
+                                                      .selectedFilter
+                                                      .value = selected
+                                                          ? "cancelled"
+                                                          : "";
+                                                  controller
+                                                      .filterAppointments();
+                                                },
+                                              ),
+                                              SizedBox(height: 16.h),
+                                              SizedBox(
+                                                width: double.infinity,
+                                                child: ElevatedButton(
+                                                  onPressed: () {
+                                                    controller
+                                                        .filterAppointments();
+                                                    Navigator.pop(context);
+                                                  },
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        const Color(0xFF2563EB),
+                                                    foregroundColor:
+                                                        Colors.white,
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                          vertical: 12.h,
+                                                        ),
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            8.r,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                  child: const CustomText(
+                                                    text: "Apply Filters",
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                            );
+                          },
                           child: Container(
                             padding: EdgeInsets.all(6.5.h),
                             decoration: BoxDecoration(
@@ -129,7 +284,7 @@ class Appointments extends GetView<AppointmentsController> {
           ),
           Obx(
             () => AppointmentsSection(
-              appointments: controller.settings.appointments.value,
+              appointments: controller.showAppointment.value,
               axis: Axis.vertical,
               height: Get.height - 160.h,
               showHeader: false,

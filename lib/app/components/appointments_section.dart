@@ -11,6 +11,7 @@ class AppointmentsSection extends StatelessWidget {
   final List<Appointment> appointments;
   final Axis? axis;
   final double? height;
+  final int? limit;
   final bool showHeader;
   const AppointmentsSection({
     super.key,
@@ -18,6 +19,7 @@ class AppointmentsSection extends StatelessWidget {
     this.axis,
     this.showHeader = true,
     this.height,
+    this.limit,
   });
 
   Color getStatusColor(String status) {
@@ -100,7 +102,12 @@ class AppointmentsSection extends StatelessWidget {
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: appointments.length,
+            itemCount:
+                limit != null
+                    ? (limit! > appointments.length
+                        ? appointments.length
+                        : limit!)
+                    : appointments.length,
             itemBuilder: (context, index) {
               final appointment = appointments[index];
               final colors = gradientColors[index % gradientColors.length];
@@ -550,8 +557,9 @@ class AppointmentsSection extends StatelessWidget {
                                     ),
                                     SizedBox(width: 5.w),
                                     appointment.status.toLowerCase().contains(
-                                          "completed",
-                                        )
+                                              "completed",
+                                            ) &&
+                                            appointment.rating == 0
                                         ? _rate(appointment)
                                         : Container(),
                                   ],
@@ -754,6 +762,7 @@ class AppointmentsSection extends StatelessWidget {
                               'user_id': Get.find<Settings>().user!.id,
                               'rate': rating.value,
                               'comment': commentController.text,
+                              'booking_id': appointment.id,
                               'is_anonymous': false,
                             });
 
@@ -780,6 +789,7 @@ class AppointmentsSection extends StatelessWidget {
                           colorText: const Color(0xFF10B981),
                           duration: const Duration(seconds: 3),
                         );
+                        Get.find<Settings>().fetchAppointments();
                       },
                       gradientColors: [
                         const Color(0xFFFBBF24),

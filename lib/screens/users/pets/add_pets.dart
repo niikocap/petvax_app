@@ -436,7 +436,7 @@ class AddPetScreen extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: GradientButton(
-        text: "Add Pet",
+        text: controller.pet != null ? "Update Pet" : "Add Pet",
         onPressed: () {
           controller.submitForm();
         },

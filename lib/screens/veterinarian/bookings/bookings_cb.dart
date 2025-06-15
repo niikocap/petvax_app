@@ -26,11 +26,6 @@ class AppointmentsController extends GetxController {
     SortOption(value: 'status', label: 'Status'),
   ];
 
-  @override
-  void onInit() {
-    super.onInit();
-  }
-
   List<Appointment> get sortedAppointments {
     List<Appointment> sorted = List.from(settings.appointments);
 

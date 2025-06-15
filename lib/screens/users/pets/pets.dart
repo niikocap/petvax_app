@@ -214,7 +214,7 @@ class Pets extends GetView<PetsController> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.r),
                         ),
-                        onSelected: (String value) {
+                        onSelected: (String value) async {
                           switch (value) {
                             case 'book':
                               // Handle book now action
@@ -222,10 +222,22 @@ class Pets extends GetView<PetsController> {
                               break;
                             case 'edit':
                               // Handle edit action
-                              print('Edit pressed for ${pet.name}');
+                              Get.toNamed('/add-pet', arguments: pet);
                               break;
                             case 'delete':
-                              // Handle delete action
+                              var res = await controller.connect.get(
+                                'pet/delete/${pet.id}',
+                              );
+
+                              await controller.settings.fetchPets();
+                              if (res.statusCode == 200) {
+                                controller.showSuccessSnackBar(
+                                  'Pet deleted successfully',
+                                );
+                              } else {
+                                controller.showErrorSnackbar('Pet not deleted');
+                              }
+
                               print('Delete pressed for ${pet.name}');
                               break;
                           }

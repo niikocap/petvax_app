@@ -124,6 +124,7 @@ class ServicesController extends GetxController with SnackBarMixin {
       "notes": "any",
       "total_amount": amount,
       "status": "pending",
+      "payment_method": selectedPaymentMethod,
       "payment_reference": referenceNumber.value,
     };
 
@@ -902,6 +903,10 @@ class ServicesController extends GetxController with SnackBarMixin {
   }
 
   checkSlots() async {
+    Get.dialog(
+      const Center(child: CircularProgressIndicator()),
+      barrierDismissible: false,
+    );
     var res = await connect.post('check-slot', {
       "clinic_id": clinic!.id,
       "service_id": services[activeIndex.value].id,
@@ -909,7 +914,7 @@ class ServicesController extends GetxController with SnackBarMixin {
       "date": DateFormat('yyyy-MM-dd').format(selectedDate.value),
     });
 
-    print(res.body);
+    Get.back();
     if (res.body['status'] == 'success') {
       isDateAvailable.value = res.body['available'];
     } else {

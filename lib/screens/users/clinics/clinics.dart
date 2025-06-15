@@ -1,4 +1,5 @@
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -225,20 +226,62 @@ class Clinics extends GetView<ClinicsController> {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8.r),
                     ),
-                    child: TextField(
+                    child: CupertinoTextField(
+                      suffix: Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              controller.isTagSearchEnabled.value =
+                                  !controller.isTagSearchEnabled.value;
+                              Get.snackbar(
+                                'Tags Search',
+                                controller.isTagSearchEnabled.value
+                                    ? 'Tag search enabled'
+                                    : 'Tag search disabled',
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: Colors.white,
+                                duration: const Duration(seconds: 2),
+                              );
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color:
+                                    controller.isTagSearchEnabled.value
+                                        ? Colors.grey[300]
+                                        : Colors.transparent,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.tag,
+                                color: Colors.teal,
+                                size: 20.sp,
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 10.w),
+                        ],
+                      ),
+
                       controller: controller.searchQuery,
                       onChanged: (val) {
                         controller.searchClinics(val);
                       },
-                      decoration: InputDecoration(
-                        hintStyle: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w300,
-                        ),
-                        hintText: "Search clinics...",
-                        prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.all(12.w),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 15.w,
+                        vertical: 10.w,
                       ),
+                      placeholder: "Search Clinics...",
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w300),
+                      // decoration: InputDecoration(
+                      //   hintStyle: GoogleFonts.poppins(
+                      //     fontWeight: FontWeight.w300,
+                      //   ),
+                      //   hintText: "Search clinics...",
+                      //   prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
+                      //   border: InputBorder.none,
+                      //   contentPadding: EdgeInsets.all(12.w),
+                      // ),
                     ),
                   ),
                 ],

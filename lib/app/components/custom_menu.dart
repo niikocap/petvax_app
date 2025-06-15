@@ -31,7 +31,7 @@ class CustomMenu extends StatelessWidget {
         ),
         CircularMenuItem(
           iconSize: 25,
-          icon: Icons.settings,
+          icon: Icons.medical_services,
           color: Colors.pinkAccent,
           onTap: () {
             Get.toNamed('/rule-base');
