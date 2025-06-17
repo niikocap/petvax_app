@@ -29,6 +29,7 @@ class Settings extends GetxController with SnackBarMixin {
     await fetchPets();
     await fetchAppointments();
     await fetchClinics();
+    await fetchNotifications(id: id);
   }
 
   fetchPets({id}) async {

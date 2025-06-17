@@ -19,6 +19,7 @@ class AppointmentsController extends GetxController with SnackBarMixin {
     if (selectedFilter.isEmpty) {
       return settings.appointments;
     }
+    print('filter ${selectedFilter.value}');
     showAppointment.value =
         settings.appointments.where((appointment) {
           switch (selectedFilter.value.toLowerCase()) {
@@ -26,8 +27,8 @@ class AppointmentsController extends GetxController with SnackBarMixin {
               return appointment.status.toLowerCase() == 'pending';
             case 'cancelled':
               return appointment.status.toLowerCase() == 'cancelled';
-            case 'decline':
-              return appointment.status.toLowerCase() == 'decline';
+            case 'declined':
+              return appointment.status.toLowerCase() == 'declined';
             case 'completed':
               return appointment.status.toLowerCase() == 'completed';
             case 'confirmed':

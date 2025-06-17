@@ -10,6 +10,7 @@ class ServicesModel {
   String size;
   int clinicId;
   String image;
+  bool isHomeService;
 
   ServicesModel({
     required this.id,
@@ -21,6 +22,7 @@ class ServicesModel {
     required this.size,
     required this.clinicId,
     required this.image,
+    this.isHomeService = false,
   });
 
   factory ServicesModel.fromJson(Map<String, dynamic> json) {
@@ -35,6 +37,7 @@ class ServicesModel {
       clinicId: json['clinic_id'] as int,
       image:
           json['image'] ?? "https://picsum.photos/200/30${Random().nextInt(9)}",
+      isHomeService: (json['is_home_service'] ?? 0) == 0 ? false : true,
     );
   }
 
@@ -48,6 +51,7 @@ class ServicesModel {
       'size': size,
       'clinic_id': clinicId,
       'image': image,
+      'is_home_service': isHomeService,
     };
   }
 }

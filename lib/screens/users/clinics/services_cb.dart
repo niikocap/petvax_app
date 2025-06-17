@@ -35,6 +35,7 @@ class ServicesController extends GetxController with SnackBarMixin {
   var selectedPaymentMethod = "gcash".obs;
   Rx<String?> imagePath = Rx<String?>(null);
   RxString referenceNumber = ''.obs;
+  RxBool isHomeService = false.obs;
 
   Clinic? clinic;
   RxList<ServicesModel> services = <ServicesModel>[].obs;
@@ -152,6 +153,16 @@ class ServicesController extends GetxController with SnackBarMixin {
       const Center(child: CircularProgressIndicator()),
       barrierDismissible: false,
     );
+    // Reset all input values to default
+    //selectedPet.value = pets.isNotEmpty ? pets[0].name : '';
+    selectedDate.value = DateTime.now();
+    isDateAvailable.value = true;
+    availableSlots.clear();
+    shownTime.clear();
+    selectedPaymentMethod.value = "gcash";
+    imagePath.value = null;
+    referenceNumber.value = '';
+
     await loadServicesTime(id);
     Get.back();
     Get.bottomSheet(
@@ -448,441 +459,482 @@ class ServicesController extends GetxController with SnackBarMixin {
               onPressed: () {
                 if (isDateAvailable.value) {
                   Get.bottomSheet(
-                    Container(
-                      height: Get.height * 0.6,
-                      padding: EdgeInsets.all(20.w),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(20.r),
-                          topRight: Radius.circular(20.r),
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            "Confirm Booking Details",
-                            style: GoogleFonts.poppins(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w600,
+                    Wrap(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(20.w),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20.r),
+                              topRight: Radius.circular(20.r),
                             ),
                           ),
-                          SizedBox(height: 20.h),
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 15.w),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8.r),
-                              border: Border.all(
-                                color: Colors.teal.withOpacity(0.3),
-                              ),
-                            ),
-                            child: Obx(
-                              () => DropdownButtonHideUnderline(
-                                child: DropdownButton<String>(
-                                  isExpanded: true,
-                                  value: selectedPet.value,
-                                  icon: const Icon(
-                                    Icons.keyboard_arrow_down,
-                                    color: Colors.teal,
-                                  ),
-                                  items:
-                                      pets
-                                          .map(
-                                            (pet) => DropdownMenuItem(
-                                              value: pet.name,
-                                              child: Text(
-                                                pet.name,
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 14.sp,
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                          .toList(),
-                                  onChanged: (value) {
-                                    selectedPet.value = value!;
-                                  },
+                          child: Column(
+                            children: [
+                              Text(
+                                "Confirm Booking Details",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 18.sp,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                            ),
-                          ),
-                          SizedBox(height: 20.h),
-                          Container(
-                            padding: EdgeInsets.all(15.w),
-                            decoration: BoxDecoration(
-                              color: Colors.teal.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(10.r),
-                            ),
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Date:",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14.sp,
-                                      ),
-                                    ),
-                                    Text(
-                                      DateFormat(
-                                        'MMM dd, yyyy',
-                                      ).format(selectedDate.value),
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14.sp,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 10.h),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Time:",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14.sp,
-                                      ),
-                                    ),
-                                    Text(
-                                      "${selectedHour.value}:00 ${selectedAmPm.value}",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14.sp,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 10.h),
-                          Text(
-                            "Payment Method",
-                            style: GoogleFonts.poppins(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          SizedBox(height: 10.h),
-                          Obx(
-                            () => Container(
-                              padding: EdgeInsets.all(10.w),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8.r),
-                                border: Border.all(
-                                  color: Colors.teal.withOpacity(0.3),
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
-                                    blurRadius: 4,
-                                    offset: Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
+                              SizedBox(height: 15.h),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  ListTile(
-                                    leading: Radio(
-                                      value: 'cash',
-                                      groupValue: selectedPaymentMethod.value,
-                                      onChanged: (value) {
-                                        selectedPaymentMethod.value = value!;
-                                      },
-                                      activeColor: Colors.teal,
-                                    ),
-                                    title: Text(
-                                      'Cash',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14.sp,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    trailing: Icon(
-                                      Icons.money,
-                                      color: Colors.teal,
+                                  Text(
+                                    "Home Service",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
-                                  Divider(height: 1),
-                                  ListTile(
-                                    leading: Radio(
-                                      value: 'gcash',
-                                      groupValue: selectedPaymentMethod.value,
-                                      onChanged: (value) {
-                                        selectedPaymentMethod.value = value!;
+                                  Obx(
+                                    () => Switch(
+                                      value: isHomeService.value,
+                                      onChanged: (bool value) {
+                                        isHomeService(value);
                                       },
                                       activeColor: Colors.teal,
-                                    ),
-                                    title: Text(
-                                      'GCash',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14.sp,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    trailing: Icon(
-                                      Icons.account_balance_wallet,
-                                      color: Colors.teal,
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
-                          ),
-                          SizedBox(height: 10.h),
-                          GradientButton(
-                            text: "Proceed with Booking",
-                            onPressed: () {
-                              Get.back();
-                              if (selectedPaymentMethod.value == "gcash") {
-                                Get.bottomSheet(
-                                  Wrap(
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.all(20.w),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(20.r),
-                                            topRight: Radius.circular(20.r),
-                                          ),
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "GCash Payment Details",
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 18.sp,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                            SizedBox(height: 20.h),
-                                            TextField(
-                                              onChanged:
-                                                  (value) =>
-                                                      referenceNumber.value =
-                                                          value,
-                                              decoration: InputDecoration(
-                                                labelText: 'Reference Number',
-                                                labelStyle: GoogleFonts.poppins(
-                                                  color: Colors.teal,
-                                                ),
-                                                border: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                        8.r,
-                                                      ),
-                                                  borderSide: BorderSide(
-                                                    color: Colors.teal,
+                              SizedBox(height: .5h),
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 15.w),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8.r),
+                                  border: Border.all(
+                                    color: Colors.teal.withOpacity(0.3),
+                                  ),
+                                ),
+                                child: Obx(
+                                  () => DropdownButtonHideUnderline(
+                                    child: DropdownButton<String>(
+                                      isExpanded: true,
+                                      value: selectedPet.value,
+                                      icon: const Icon(
+                                        Icons.keyboard_arrow_down,
+                                        color: Colors.teal,
+                                      ),
+                                      items:
+                                          pets
+                                              .map(
+                                                (pet) => DropdownMenuItem(
+                                                  value: pet.name,
+                                                  child: Text(
+                                                    pet.name,
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 14.sp,
+                                                    ),
                                                   ),
                                                 ),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
+                                              )
+                                              .toList(),
+                                      onChanged: (value) {
+                                        selectedPet.value = value!;
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 20.h),
+                              Container(
+                                padding: EdgeInsets.all(15.w),
+                                decoration: BoxDecoration(
+                                  color: Colors.teal.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(10.r),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "Date:",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14.sp,
+                                          ),
+                                        ),
+                                        Text(
+                                          DateFormat(
+                                            'MMM dd, yyyy',
+                                          ).format(selectedDate.value),
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 10.h),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "Time:",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14.sp,
+                                          ),
+                                        ),
+                                        Text(
+                                          "${selectedHour.value}:00 ${selectedAmPm.value}",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: 10.h),
+                              Text(
+                                "Payment Method",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              SizedBox(height: 10.h),
+                              Obx(
+                                () => Container(
+                                  padding: EdgeInsets.all(10.w),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8.r),
+                                    border: Border.all(
+                                      color: Colors.teal.withOpacity(0.3),
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.05),
+                                        blurRadius: 4,
+                                        offset: Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      ListTile(
+                                        leading: Radio(
+                                          value: 'cash',
+                                          groupValue:
+                                              selectedPaymentMethod.value,
+                                          onChanged: (value) {
+                                            selectedPaymentMethod.value =
+                                                value!;
+                                          },
+                                          activeColor: Colors.teal,
+                                        ),
+                                        title: Text(
+                                          'Cash',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        trailing: Icon(
+                                          Icons.money,
+                                          color: Colors.teal,
+                                        ),
+                                      ),
+                                      Divider(height: 1),
+                                      ListTile(
+                                        leading: Radio(
+                                          value: 'gcash',
+                                          groupValue:
+                                              selectedPaymentMethod.value,
+                                          onChanged: (value) {
+                                            selectedPaymentMethod.value =
+                                                value!;
+                                          },
+                                          activeColor: Colors.teal,
+                                        ),
+                                        title: Text(
+                                          'GCash',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        trailing: Icon(
+                                          Icons.account_balance_wallet,
+                                          color: Colors.teal,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 10.h),
+                              GradientButton(
+                                text: "Proceed with Booking",
+                                onPressed: () {
+                                  Get.back();
+                                  if (selectedPaymentMethod.value == "gcash") {
+                                    Get.bottomSheet(
+                                      Wrap(
+                                        children: [
+                                          Container(
+                                            padding: EdgeInsets.all(20.w),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(20.r),
+                                                topRight: Radius.circular(20.r),
+                                              ),
+                                            ),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "GCash Payment Details",
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 18.sp,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                                SizedBox(height: 20.h),
+                                                TextField(
+                                                  onChanged:
+                                                      (value) =>
+                                                          referenceNumber
+                                                              .value = value,
+                                                  decoration: InputDecoration(
+                                                    labelText:
+                                                        'Reference Number',
+                                                    labelStyle:
+                                                        GoogleFonts.poppins(
+                                                          color: Colors.teal,
+                                                        ),
+                                                    border: OutlineInputBorder(
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                             8.r,
                                                           ),
                                                       borderSide: BorderSide(
                                                         color: Colors.teal,
-                                                        width: 2,
                                                       ),
                                                     ),
-                                                enabledBorder:
-                                                    OutlineInputBorder(
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                8.r,
+                                                              ),
+                                                          borderSide:
+                                                              BorderSide(
+                                                                color:
+                                                                    Colors.teal,
+                                                                width: 2,
+                                                              ),
+                                                        ),
+                                                    enabledBorder:
+                                                        OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                8.r,
+                                                              ),
+                                                          borderSide: BorderSide(
+                                                            color: Colors.teal
+                                                                .withOpacity(
+                                                                  0.5,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                    hintText:
+                                                        'Enter GCash reference number',
+                                                    hintStyle:
+                                                        GoogleFonts.poppins(
+                                                          color: Colors.grey,
+                                                        ),
+                                                    prefixIcon: Icon(
+                                                      Icons.receipt,
+                                                      color: Colors.teal,
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(height: 20.h),
+                                                Obx(
+                                                  () => Container(
+                                                    height: 150.h,
+                                                    width: double.infinity,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.grey[100],
+                                                      border: Border.all(
+                                                        color: Colors.teal
+                                                            .withOpacity(0.5),
+                                                      ),
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                             8.r,
                                                           ),
-                                                      borderSide: BorderSide(
-                                                        color: Colors.teal
-                                                            .withOpacity(0.5),
-                                                      ),
                                                     ),
-                                                hintText:
-                                                    'Enter GCash reference number',
-                                                hintStyle: GoogleFonts.poppins(
-                                                  color: Colors.grey,
-                                                ),
-                                                prefixIcon: Icon(
-                                                  Icons.receipt,
-                                                  color: Colors.teal,
-                                                ),
-                                              ),
-                                            ),
-                                            SizedBox(height: 20.h),
-                                            Obx(
-                                              () => Container(
-                                                height: 150.h,
-                                                width: double.infinity,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.grey[100],
-                                                  border: Border.all(
-                                                    color: Colors.teal
-                                                        .withOpacity(0.5),
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                        8.r,
-                                                      ),
-                                                ),
-                                                child:
-                                                    imagePath.value == null
-                                                        ? Material(
-                                                          color:
-                                                              Colors
-                                                                  .transparent,
-                                                          child: InkWell(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  8.r,
+                                                    child:
+                                                        imagePath.value == null
+                                                            ? Material(
+                                                              color:
+                                                                  Colors
+                                                                      .transparent,
+                                                              child: InkWell(
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      8.r,
+                                                                    ),
+                                                                onTap: () async {
+                                                                  var img = await ImagePicker()
+                                                                      .pickImage(
+                                                                        source:
+                                                                            ImageSource.gallery,
+                                                                      );
+                                                                  imagePath
+                                                                          .value =
+                                                                      img?.path;
+                                                                },
+                                                                child: Column(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .center,
+                                                                  children: [
+                                                                    Icon(
+                                                                      Icons
+                                                                          .cloud_upload_outlined,
+                                                                      size:
+                                                                          40.sp,
+                                                                      color:
+                                                                          Colors
+                                                                              .teal,
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height:
+                                                                          8.h,
+                                                                    ),
+                                                                    Text(
+                                                                      'Upload Payment Screenshot',
+                                                                      style: GoogleFonts.poppins(
+                                                                        color:
+                                                                            Colors.teal,
+                                                                        fontWeight:
+                                                                            FontWeight.w500,
+                                                                      ),
+                                                                    ),
+                                                                    Text(
+                                                                      'Tap to select image',
+                                                                      style: GoogleFonts.poppins(
+                                                                        color:
+                                                                            Colors.grey,
+                                                                        fontSize:
+                                                                            12.sp,
+                                                                      ),
+                                                                    ),
+                                                                  ],
                                                                 ),
-                                                            onTap: () async {
-                                                              var img = await ImagePicker()
-                                                                  .pickImage(
-                                                                    source:
-                                                                        ImageSource
-                                                                            .gallery,
-                                                                  );
-                                                              imagePath.value =
-                                                                  img?.path;
-                                                            },
-                                                            child: Column(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
+                                                              ),
+                                                            )
+                                                            : Stack(
                                                               children: [
-                                                                Icon(
-                                                                  Icons
-                                                                      .cloud_upload_outlined,
-                                                                  size: 40.sp,
-                                                                  color:
-                                                                      Colors
-                                                                          .teal,
-                                                                ),
-                                                                SizedBox(
-                                                                  height: 8.h,
-                                                                ),
-                                                                Text(
-                                                                  'Upload Payment Screenshot',
-                                                                  style: GoogleFonts.poppins(
-                                                                    color:
-                                                                        Colors
-                                                                            .teal,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500,
+                                                                ClipRRect(
+                                                                  borderRadius:
+                                                                      BorderRadius.circular(
+                                                                        8.r,
+                                                                      ),
+                                                                  child: Image.file(
+                                                                    File(
+                                                                      imagePath
+                                                                          .value!,
+                                                                    ),
+                                                                    fit:
+                                                                        BoxFit
+                                                                            .cover,
+                                                                    width:
+                                                                        double
+                                                                            .infinity,
                                                                   ),
                                                                 ),
-                                                                Text(
-                                                                  'Tap to select image',
-                                                                  style: GoogleFonts.poppins(
-                                                                    color:
-                                                                        Colors
-                                                                            .grey,
-                                                                    fontSize:
-                                                                        12.sp,
+                                                                Positioned(
+                                                                  top: 8,
+                                                                  right: 8,
+                                                                  child: IconButton(
+                                                                    onPressed:
+                                                                        () =>
+                                                                            imagePath.value =
+                                                                                null,
+                                                                    icon: Icon(
+                                                                      Icons
+                                                                          .close,
+                                                                    ),
+                                                                    style: IconButton.styleFrom(
+                                                                      backgroundColor:
+                                                                          Colors
+                                                                              .white,
+                                                                      foregroundColor:
+                                                                          Colors
+                                                                              .red,
+                                                                    ),
                                                                   ),
                                                                 ),
                                                               ],
                                                             ),
-                                                          ),
-                                                        )
-                                                        : Stack(
-                                                          children: [
-                                                            ClipRRect(
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    8.r,
-                                                                  ),
-                                                              child: Image.file(
-                                                                File(
-                                                                  imagePath
-                                                                      .value!,
-                                                                ),
-                                                                fit:
-                                                                    BoxFit
-                                                                        .cover,
-                                                                width:
-                                                                    double
-                                                                        .infinity,
-                                                              ),
-                                                            ),
-                                                            Positioned(
-                                                              top: 8,
-                                                              right: 8,
-                                                              child: IconButton(
-                                                                onPressed:
-                                                                    () =>
-                                                                        imagePath.value =
-                                                                            null,
-                                                                icon: Icon(
-                                                                  Icons.close,
-                                                                ),
-                                                                style: IconButton.styleFrom(
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .white,
-                                                                  foregroundColor:
-                                                                      Colors
-                                                                          .red,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                              ),
-                                            ),
-                                            SizedBox(height: 20.h),
-                                            GradientButton(
-                                              text: "Submit Payment",
-                                              onPressed: () {
-                                                if (referenceNumber
-                                                    .value
-                                                    .isEmpty) {
-                                                  showErrorSnackbar(
-                                                    "Please enter reference number",
-                                                  );
-                                                  return;
-                                                }
-                                                if (imagePath.value == null) {
-                                                  showErrorSnackbar(
-                                                    "Please upload payment screenshot",
-                                                  );
-                                                  return;
-                                                }
-                                                bookNow(id, price);
-                                                Get.back();
-                                              },
-                                              gradientColors: [
-                                                Colors.teal,
-                                                Colors.tealAccent,
+                                                  ),
+                                                ),
+                                                SizedBox(height: 20.h),
+                                                GradientButton(
+                                                  text: "Submit Payment",
+                                                  onPressed: () {
+                                                    if (referenceNumber
+                                                        .value
+                                                        .isEmpty) {
+                                                      showErrorSnackbar(
+                                                        "Please enter reference number",
+                                                      );
+                                                      return;
+                                                    }
+                                                    if (imagePath.value ==
+                                                        null) {
+                                                      showErrorSnackbar(
+                                                        "Please upload payment screenshot",
+                                                      );
+                                                      return;
+                                                    }
+                                                    bookNow(id, price);
+                                                    Get.back();
+                                                  },
+                                                  gradientColors: [
+                                                    Colors.teal,
+                                                    Colors.tealAccent,
+                                                  ],
+                                                ),
                                               ],
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                  backgroundColor: Colors.transparent,
-                                  isScrollControlled: true,
-                                );
-                              } else {
-                                bookNow(id, price);
-                                Get.back();
-                              }
-                            },
-                            gradientColors: [Colors.teal, Colors.tealAccent],
+                                      backgroundColor: Colors.transparent,
+                                      isScrollControlled: true,
+                                    );
+                                  } else {
+                                    bookNow(id, price);
+                                    Get.back();
+                                  }
+                                },
+                                gradientColors: [
+                                  Colors.teal,
+                                  Colors.tealAccent,
+                                ],
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                     backgroundColor: Colors.transparent,
                     isScrollControlled: true,
