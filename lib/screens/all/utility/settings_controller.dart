@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:petvax/app/constants/strings.dart';
@@ -16,11 +18,16 @@ class Settings extends GetxController with SnackBarMixin {
   RxList<Appointment> appointments = <Appointment>[].obs;
   RxList<NotificationItem> notifications = <NotificationItem>[].obs;
   Position? position;
+  Timer? _timer;
 
   @override
   onInit() async {
     connect.baseUrl = AppStrings.baseUrl;
     position = await determinePosition();
+    // _timer = Timer.periodic(Duration(seconds: 15), (tick) async {
+    //   fetchNotifications(id: user!.id);
+    //   position = await determinePosition();
+    // });
     super.onInit();
   }
 

@@ -2,11 +2,14 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:petvax/app/constants/colors.dart';
 import 'package:petvax/app/constants/strings.dart';
 import 'package:petvax/app/mixins/snackbar.dart';
 import 'package:petvax/app/models/clinic_model.dart';
@@ -36,6 +39,10 @@ class ServicesController extends GetxController with SnackBarMixin {
   Rx<String?> imagePath = Rx<String?>(null);
   RxString referenceNumber = ''.obs;
   RxBool isHomeService = false.obs;
+  RxString selectedAddress = ''.obs;
+  RxDouble selectedLat = 0.0.obs;
+  RxDouble selectedLng = 0.0.obs;
+  RxString selectedTime = ''.obs;
 
   Clinic? clinic;
   RxList<ServicesModel> services = <ServicesModel>[].obs;
@@ -142,13 +149,30 @@ class ServicesController extends GetxController with SnackBarMixin {
     Get.back();
 
     if (res.body['status'] == 'success') {
+      final bookingId = res.body['data']['id'];
+
+      if (isHomeService.value) {
+        try {
+          var r = await connect.post('homeservice/add', {
+            "booking_id": bookingId,
+            "latitude": selectedLat.value,
+            "longitude": selectedLng.value,
+            "address": selectedAddress.value,
+          });
+          print("home service: ${r.body}");
+        } catch (e) {
+          showErrorSnackbar("Failed to add home service details");
+          return;
+        }
+      }
+
       showSuccessSnackBar("Booking has been scheduled!");
     } else {
       showErrorSnackbar("Something went wrong, try again or contact admin!");
     }
   }
 
-  book(id, price) async {
+  book(id, price, hs) async {
     Get.dialog(
       const Center(child: CircularProgressIndicator()),
       barrierDismissible: false,
@@ -199,19 +223,19 @@ class ServicesController extends GetxController with SnackBarMixin {
             Container(
               padding: EdgeInsets.all(15.w),
               decoration: BoxDecoration(
-                color: Colors.teal.withOpacity(0.1),
+                color: AppColors.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(10.r),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.info_outline, color: Colors.teal),
+                  Icon(Icons.info_outline, color: AppColors.primary),
                   SizedBox(width: 10.w),
                   Expanded(
                     child: Text(
                       "Select your preferred date and time for the appointment",
                       style: GoogleFonts.poppins(
                         fontSize: 13.sp,
-                        color: Colors.teal,
+                        color: AppColors.primary,
                       ),
                     ),
                   ),
@@ -221,7 +245,7 @@ class ServicesController extends GetxController with SnackBarMixin {
             SizedBox(height: 15.h),
             Row(
               children: [
-                Icon(Icons.access_time, color: Colors.teal, size: 20.sp),
+                Icon(Icons.access_time, color: AppColors.primary, size: 20.sp),
                 SizedBox(width: 8.w),
                 Text(
                   "Select Time",
@@ -235,32 +259,37 @@ class ServicesController extends GetxController with SnackBarMixin {
             SizedBox(height: 8.h),
             Row(
               children: [
-                Expanded(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 15.w,
-                      vertical: 0.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8.r),
-                      border: Border.all(color: Colors.teal.withOpacity(0.3)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 4,
-                          offset: Offset(0, 2),
+                Obx(
+                  () => Expanded(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 15.w,
+                        vertical: 0.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8.r),
+                        border: Border.all(
+                          color: AppColors.primary.withOpacity(0.3),
                         ),
-                      ],
-                    ),
-                    child: Obx(
-                      () => DropdownButtonHideUnderline(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 4,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           isExpanded: true,
-                          value: shownTime.isNotEmpty ? shownTime[0] : null,
+                          value:
+                              selectedTime.value == ""
+                                  ? (shownTime.isNotEmpty ? shownTime[0] : null)
+                                  : selectedTime.value,
                           icon: const Icon(
                             Icons.keyboard_arrow_down,
-                            color: Colors.teal,
+                            color: AppColors.primary,
                           ),
                           items:
                               shownTime
@@ -279,9 +308,7 @@ class ServicesController extends GetxController with SnackBarMixin {
                                   .toList(),
                           onChanged: (value) async {
                             if (value != null) {
-                              selectedHour.value = int.parse(
-                                value.split(':')[0],
-                              );
+                              selectedTime.value = value;
                               await checkSlots();
                             }
                           },
@@ -300,7 +327,9 @@ class ServicesController extends GetxController with SnackBarMixin {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8.r),
-                      border: Border.all(color: Colors.teal.withOpacity(0.3)),
+                      border: Border.all(
+                        color: AppColors.primary.withOpacity(0.3),
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.05),
@@ -316,7 +345,7 @@ class ServicesController extends GetxController with SnackBarMixin {
                           value: selectedAmPm.value,
                           icon: const Icon(
                             Icons.keyboard_arrow_down,
-                            color: Colors.teal,
+                            color: AppColors.primary,
                           ),
                           items:
                               ['AM', 'PM']
@@ -335,6 +364,7 @@ class ServicesController extends GetxController with SnackBarMixin {
                                   .toList(),
                           onChanged: (value) async {
                             showTime(isAm: value == "AM");
+                            selectedTime.value = '';
                             selectedAmPm.value = value!;
                             await checkSlots();
                           },
@@ -348,7 +378,11 @@ class ServicesController extends GetxController with SnackBarMixin {
             SizedBox(height: 15.h),
             Row(
               children: [
-                Icon(Icons.calendar_today, color: Colors.teal, size: 20.sp),
+                Icon(
+                  Icons.calendar_today,
+                  color: AppColors.primary,
+                  size: 20.sp,
+                ),
                 SizedBox(width: 8.w),
                 Text(
                   "Select Date",
@@ -364,7 +398,7 @@ class ServicesController extends GetxController with SnackBarMixin {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10.r),
-                border: Border.all(color: Colors.teal.withOpacity(0.3)),
+                border: Border.all(color: AppColors.primary.withOpacity(0.3)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.05),
@@ -389,11 +423,11 @@ class ServicesController extends GetxController with SnackBarMixin {
                   calendarFormat: CalendarFormat.twoWeeks,
                   calendarStyle: CalendarStyle(
                     selectedDecoration: BoxDecoration(
-                      color: Colors.teal,
+                      color: AppColors.primary,
                       shape: BoxShape.circle,
                     ),
                     todayDecoration: BoxDecoration(
-                      color: Colors.teal.withOpacity(0.3),
+                      color: AppColors.primary.withOpacity(0.3),
                       shape: BoxShape.circle,
                     ),
                     cellMargin: EdgeInsets.all(4),
@@ -480,36 +514,38 @@ class ServicesController extends GetxController with SnackBarMixin {
                                 ),
                               ),
                               SizedBox(height: 15.h),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "Home Service",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 16.sp,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  Obx(
-                                    () => Switch(
-                                      value: isHomeService.value,
-                                      onChanged: (bool value) {
-                                        isHomeService(value);
-                                      },
-                                      activeColor: Colors.teal,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: .5h),
+                              hs
+                                  ? Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Home Service",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 16.sp,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      Obx(
+                                        () => Switch(
+                                          value: isHomeService.value,
+                                          onChanged: (bool value) {
+                                            isHomeService(value);
+                                          },
+                                          activeColor: AppColors.primary,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                  : const SizedBox.shrink(),
+                              SizedBox(height: 5.h),
                               Container(
                                 padding: EdgeInsets.symmetric(horizontal: 15.w),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(8.r),
                                   border: Border.all(
-                                    color: Colors.teal.withOpacity(0.3),
+                                    color: AppColors.primary.withOpacity(0.3),
                                   ),
                                 ),
                                 child: Obx(
@@ -519,7 +555,7 @@ class ServicesController extends GetxController with SnackBarMixin {
                                       value: selectedPet.value,
                                       icon: const Icon(
                                         Icons.keyboard_arrow_down,
-                                        color: Colors.teal,
+                                        color: AppColors.primary,
                                       ),
                                       items:
                                           pets
@@ -546,7 +582,7 @@ class ServicesController extends GetxController with SnackBarMixin {
                               Container(
                                 padding: EdgeInsets.all(15.w),
                                 decoration: BoxDecoration(
-                                  color: Colors.teal.withOpacity(0.1),
+                                  color: AppColors.primary.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(10.r),
                                 ),
                                 child: Column(
@@ -611,7 +647,7 @@ class ServicesController extends GetxController with SnackBarMixin {
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(8.r),
                                     border: Border.all(
-                                      color: Colors.teal.withOpacity(0.3),
+                                      color: AppColors.primary.withOpacity(0.3),
                                     ),
                                     boxShadow: [
                                       BoxShadow(
@@ -632,7 +668,7 @@ class ServicesController extends GetxController with SnackBarMixin {
                                             selectedPaymentMethod.value =
                                                 value!;
                                           },
-                                          activeColor: Colors.teal,
+                                          activeColor: AppColors.primary,
                                         ),
                                         title: Text(
                                           'Cash',
@@ -643,7 +679,7 @@ class ServicesController extends GetxController with SnackBarMixin {
                                         ),
                                         trailing: Icon(
                                           Icons.money,
-                                          color: Colors.teal,
+                                          color: AppColors.primary,
                                         ),
                                       ),
                                       Divider(height: 1),
@@ -656,7 +692,7 @@ class ServicesController extends GetxController with SnackBarMixin {
                                             selectedPaymentMethod.value =
                                                 value!;
                                           },
-                                          activeColor: Colors.teal,
+                                          activeColor: AppColors.primary,
                                         ),
                                         title: Text(
                                           'GCash',
@@ -667,7 +703,7 @@ class ServicesController extends GetxController with SnackBarMixin {
                                         ),
                                         trailing: Icon(
                                           Icons.account_balance_wallet,
-                                          color: Colors.teal,
+                                          color: AppColors.primary,
                                         ),
                                       ),
                                     ],
@@ -678,258 +714,123 @@ class ServicesController extends GetxController with SnackBarMixin {
                               GradientButton(
                                 text: "Proceed with Booking",
                                 onPressed: () {
-                                  Get.back();
-                                  if (selectedPaymentMethod.value == "gcash") {
+                                  if (isHomeService.value) {
                                     Get.bottomSheet(
-                                      Wrap(
-                                        children: [
-                                          Container(
-                                            padding: EdgeInsets.all(20.w),
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.only(
-                                                topLeft: Radius.circular(20.r),
-                                                topRight: Radius.circular(20.r),
+                                      Container(
+                                        height: Get.height * 0.8,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(20.r),
+                                            topRight: Radius.circular(20.r),
+                                          ),
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            SizedBox(height: 10.h),
+                                            Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 20.w,
+                                                vertical: 10.h,
+                                              ),
+                                              child: Text(
+                                                "Select Location",
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 18.sp,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
                                               ),
                                             ),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  "GCash Payment Details",
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: 18.sp,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                                SizedBox(height: 20.h),
-                                                TextField(
-                                                  onChanged:
-                                                      (value) =>
-                                                          referenceNumber
-                                                              .value = value,
-                                                  decoration: InputDecoration(
-                                                    labelText:
-                                                        'Reference Number',
-                                                    labelStyle:
-                                                        GoogleFonts.poppins(
-                                                          color: Colors.teal,
-                                                        ),
-                                                    border: OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            8.r,
-                                                          ),
-                                                      borderSide: BorderSide(
-                                                        color: Colors.teal,
-                                                      ),
-                                                    ),
-                                                    focusedBorder:
-                                                        OutlineInputBorder(
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                8.r,
-                                                              ),
-                                                          borderSide:
-                                                              BorderSide(
-                                                                color:
-                                                                    Colors.teal,
-                                                                width: 2,
-                                                              ),
-                                                        ),
-                                                    enabledBorder:
-                                                        OutlineInputBorder(
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                8.r,
-                                                              ),
-                                                          borderSide: BorderSide(
-                                                            color: Colors.teal
-                                                                .withOpacity(
-                                                                  0.5,
-                                                                ),
-                                                          ),
-                                                        ),
-                                                    hintText:
-                                                        'Enter GCash reference number',
-                                                    hintStyle:
-                                                        GoogleFonts.poppins(
-                                                          color: Colors.grey,
-                                                        ),
-                                                    prefixIcon: Icon(
-                                                      Icons.receipt,
-                                                      color: Colors.teal,
-                                                    ),
-                                                  ),
-                                                ),
-                                                SizedBox(height: 20.h),
-                                                Obx(
-                                                  () => Container(
-                                                    height: 150.h,
-                                                    width: double.infinity,
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.grey[100],
-                                                      border: Border.all(
-                                                        color: Colors.teal
-                                                            .withOpacity(0.5),
-                                                      ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            8.r,
-                                                          ),
-                                                    ),
-                                                    child:
-                                                        imagePath.value == null
-                                                            ? Material(
-                                                              color:
-                                                                  Colors
-                                                                      .transparent,
-                                                              child: InkWell(
-                                                                borderRadius:
-                                                                    BorderRadius.circular(
-                                                                      8.r,
-                                                                    ),
-                                                                onTap: () async {
-                                                                  var img = await ImagePicker()
-                                                                      .pickImage(
-                                                                        source:
-                                                                            ImageSource.gallery,
-                                                                      );
-                                                                  imagePath
-                                                                          .value =
-                                                                      img?.path;
-                                                                },
-                                                                child: Column(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .center,
-                                                                  children: [
-                                                                    Icon(
-                                                                      Icons
-                                                                          .cloud_upload_outlined,
-                                                                      size:
-                                                                          40.sp,
-                                                                      color:
-                                                                          Colors
-                                                                              .teal,
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height:
-                                                                          8.h,
-                                                                    ),
-                                                                    Text(
-                                                                      'Upload Payment Screenshot',
-                                                                      style: GoogleFonts.poppins(
-                                                                        color:
-                                                                            Colors.teal,
-                                                                        fontWeight:
-                                                                            FontWeight.w500,
-                                                                      ),
-                                                                    ),
-                                                                    Text(
-                                                                      'Tap to select image',
-                                                                      style: GoogleFonts.poppins(
-                                                                        color:
-                                                                            Colors.grey,
-                                                                        fontSize:
-                                                                            12.sp,
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            )
-                                                            : Stack(
-                                                              children: [
-                                                                ClipRRect(
-                                                                  borderRadius:
-                                                                      BorderRadius.circular(
-                                                                        8.r,
-                                                                      ),
-                                                                  child: Image.file(
-                                                                    File(
-                                                                      imagePath
-                                                                          .value!,
-                                                                    ),
-                                                                    fit:
-                                                                        BoxFit
-                                                                            .cover,
-                                                                    width:
-                                                                        double
-                                                                            .infinity,
-                                                                  ),
-                                                                ),
-                                                                Positioned(
-                                                                  top: 8,
-                                                                  right: 8,
-                                                                  child: IconButton(
-                                                                    onPressed:
-                                                                        () =>
-                                                                            imagePath.value =
-                                                                                null,
-                                                                    icon: Icon(
-                                                                      Icons
-                                                                          .close,
-                                                                    ),
-                                                                    style: IconButton.styleFrom(
-                                                                      backgroundColor:
-                                                                          Colors
-                                                                              .white,
-                                                                      foregroundColor:
-                                                                          Colors
-                                                                              .red,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                  ),
-                                                ),
-                                                SizedBox(height: 20.h),
-                                                GradientButton(
-                                                  text: "Submit Payment",
-                                                  onPressed: () {
-                                                    if (referenceNumber
-                                                        .value
-                                                        .isEmpty) {
-                                                      showErrorSnackbar(
-                                                        "Please enter reference number",
-                                                      );
-                                                      return;
-                                                    }
-                                                    if (imagePath.value ==
-                                                        null) {
-                                                      showErrorSnackbar(
-                                                        "Please upload payment screenshot",
-                                                      );
-                                                      return;
-                                                    }
-                                                    bookNow(id, price);
-                                                    Get.back();
+                                            SizedBox(height: 10.h),
+                                            Expanded(
+                                              child: FlutterMap(
+                                                options: MapOptions(
+                                                  initialCenter: LatLng(
+                                                    settings.position!.latitude,
+                                                    settings
+                                                        .position!
+                                                        .longitude,
+                                                  ), // Manila coordinates
+                                                  initialZoom: 13.0,
+                                                  onTap: (tapPosition, point) {
+                                                    selectedLat.value =
+                                                        point.latitude;
+                                                    selectedLng.value =
+                                                        point.longitude;
+                                                    print(point);
+                                                    // Reverse geocode the tapped location
+                                                    selectedAddress.value =
+                                                        "Selected location (${point.latitude.toStringAsFixed(4)}, ${point.longitude.toStringAsFixed(4)})";
                                                   },
-                                                  gradientColors: [
-                                                    Colors.teal,
-                                                    Colors.tealAccent,
-                                                  ],
                                                 ),
-                                              ],
+                                                children: [
+                                                  TileLayer(
+                                                    urlTemplate:
+                                                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                                    userAgentPackageName:
+                                                        'com.example.app',
+                                                  ),
+                                                  Obx(
+                                                    () => MarkerLayer(
+                                                      markers: [
+                                                        Marker(
+                                                          width: 40.0,
+                                                          height: 40.0,
+                                                          point: LatLng(
+                                                            selectedLat.value,
+                                                            selectedLng.value,
+                                                          ),
+                                                          child: Icon(
+                                                            Icons.location_pin,
+                                                            color: Colors.red,
+                                                            size: 40,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                            Padding(
+                                              padding: EdgeInsets.all(16.w),
+                                              child: GradientButton(
+                                                text: "Confirm Location",
+                                                onPressed: () {
+                                                  if (selectedLat.value == 0 &&
+                                                      selectedLng.value == 0) {}
+
+                                                  if (selectedPaymentMethod
+                                                          .value ==
+                                                      "gcash") {
+                                                    gcashPopUp(id, price);
+                                                  } else {
+                                                    bookNow(id, price);
+                                                  }
+                                                },
+                                                gradientColors:
+                                                    AppColors.primaryGradient,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                      backgroundColor: Colors.transparent,
                                       isScrollControlled: true,
+                                      backgroundColor: Colors.transparent,
                                     );
+                                  } else if (selectedPaymentMethod.value ==
+                                      "gcash") {
+                                    gcashPopUp(id, price);
                                   } else {
                                     bookNow(id, price);
+
+                                    Get.back();
                                     Get.back();
                                   }
                                 },
-                                gradientColors: [
-                                  Colors.teal,
-                                  Colors.tealAccent,
-                                ],
+                                gradientColors: AppColors.primaryGradient,
                               ),
                             ],
                           ),
@@ -944,10 +845,165 @@ class ServicesController extends GetxController with SnackBarMixin {
                   showErrorSnackbar("Please select an available date and time");
                 }
               },
-              gradientColors: [Colors.teal, Colors.tealAccent],
+              gradientColors: AppColors.primaryGradient,
             ),
           ],
         ),
+      ),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+    );
+  }
+
+  gcashPopUp(id, price) async {
+    Get.bottomSheet(
+      Wrap(
+        children: [
+          Container(
+            padding: EdgeInsets.all(20.w),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20.r),
+                topRight: Radius.circular(20.r),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "GCash Payment Details",
+                  style: GoogleFonts.poppins(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(height: 20.h),
+                TextField(
+                  onChanged: (value) => referenceNumber.value = value,
+                  decoration: InputDecoration(
+                    labelText: 'Reference Number',
+                    labelStyle: GoogleFonts.poppins(color: AppColors.primary),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                      borderSide: BorderSide(color: AppColors.primary),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                      borderSide: BorderSide(
+                        color: AppColors.primary,
+                        width: 2,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                      borderSide: BorderSide(
+                        color: AppColors.primary.withOpacity(0.5),
+                      ),
+                    ),
+                    hintText: 'Enter GCash reference number',
+                    hintStyle: GoogleFonts.poppins(color: Colors.grey),
+                    prefixIcon: Icon(Icons.receipt, color: AppColors.primary),
+                  ),
+                ),
+                SizedBox(height: 20.h),
+                Obx(
+                  () => Container(
+                    height: 150.h,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      border: Border.all(
+                        color: AppColors.primary.withOpacity(0.5),
+                      ),
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child:
+                        imagePath.value == null
+                            ? Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(8.r),
+                                onTap: () async {
+                                  var img = await ImagePicker().pickImage(
+                                    source: ImageSource.gallery,
+                                  );
+                                  imagePath.value = img?.path;
+                                },
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.cloud_upload_outlined,
+                                      size: 40.sp,
+                                      color: AppColors.primary,
+                                    ),
+                                    SizedBox(height: 8.h),
+                                    Text(
+                                      'Upload Payment Screenshot',
+                                      style: GoogleFonts.poppins(
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Tap to select image',
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.grey,
+                                        fontSize: 12.sp,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                            : Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8.r),
+                                  child: Image.file(
+                                    File(imagePath.value!),
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 8,
+                                  right: 8,
+                                  child: IconButton(
+                                    onPressed: () => imagePath.value = null,
+                                    icon: Icon(Icons.close),
+                                    style: IconButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      foregroundColor: Colors.red,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                  ),
+                ),
+                SizedBox(height: 20.h),
+                GradientButton(
+                  text: "Submit Payment",
+                  onPressed: () {
+                    if (referenceNumber.value.isEmpty) {
+                      showErrorSnackbar("Please enter reference number");
+                      return;
+                    }
+                    if (imagePath.value == null) {
+                      showErrorSnackbar("Please upload payment screenshot");
+                      return;
+                    }
+                    bookNow(id, price);
+                    Get.back();
+                  },
+                  gradientColors: AppColors.primaryGradient,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
@@ -959,10 +1015,11 @@ class ServicesController extends GetxController with SnackBarMixin {
       const Center(child: CircularProgressIndicator()),
       barrierDismissible: false,
     );
+
     var res = await connect.post('check-slot', {
       "clinic_id": clinic!.id,
       "service_id": services[activeIndex.value].id,
-      "time": "${selectedHour.value}:00 ${selectedAmPm.value}",
+      "time": "${selectedTime.value} $selectedAmPm",
       "date": DateFormat('yyyy-MM-dd').format(selectedDate.value),
     });
 

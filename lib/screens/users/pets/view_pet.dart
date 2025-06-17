@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:petvax/app/constants/colors.dart';
 import 'package:petvax/app/constants/strings.dart';
 import 'package:petvax/app/models/medical_record_model.dart';
 import 'package:petvax/screens/users/pets/cb/view_pet_cb.dart';
@@ -37,7 +38,7 @@ class ViewPet extends GetView<ViewPetController> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.indigo.shade600, Colors.purple.shade700],
+          colors: AppColors.primaryGradient,
         ),
       ),
       child: Padding(

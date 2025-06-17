@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:petvax/app/constants/colors.dart';
 import 'package:petvax/app/constants/strings.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/clinic_model.dart';
@@ -56,7 +57,7 @@ class ClinicsSection extends StatelessWidget {
                         text: "Nearby Clinics",
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF1F2937),
+                        color: AppColors.primary,
                       ),
                       GestureDetector(
                         onTap: () {
@@ -69,7 +70,7 @@ class ClinicsSection extends StatelessWidget {
                           text: "View All",
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: const Color(0xFF2563EB),
+                          color: AppColors.primary,
                         ),
                       ),
                     ],
@@ -181,7 +182,7 @@ class ClinicsSection extends StatelessWidget {
                                       child: Icon(
                                         Icons.directions,
                                         size: 25.sp,
-                                        color: const Color(0xFF2563EB),
+                                        color: AppColors.primary,
                                       ),
                                     ),
                                   ],
@@ -216,7 +217,7 @@ class ClinicsSection extends StatelessWidget {
                                           "${(Geolocator.distanceBetween(position.latitude, position.longitude, clinic.latitude, clinic.longitude) / 1000).toStringAsFixed(2)} km away",
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
-                                      color: const Color(0xFF2563EB),
+                                      color: AppColors.primary,
                                     ),
                                     GestureDetector(
                                       onTap: () {
@@ -231,7 +232,7 @@ class ClinicsSection extends StatelessWidget {
                                           vertical: 4.h,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFF2563EB),
+                                          color: AppColors.primary,
                                           borderRadius: BorderRadius.circular(
                                             4.r,
                                           ),

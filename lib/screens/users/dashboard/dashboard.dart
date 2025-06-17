@@ -1,8 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:petvax/app/components/appointments_section.dart';
 import 'package:petvax/app/components/clinics_section.dart';
+import 'package:petvax/app/constants/colors.dart';
 import 'package:petvax/app/constants/strings.dart';
 
 import '../../../app/components/custom_menu.dart';
@@ -41,7 +44,7 @@ class DashboardScreen extends GetView<DashboardController> {
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF2563EB), Color(0xFF9333EA)],
+                colors: [AppColors.primary, AppColors.primaryLight],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
               ),
@@ -93,20 +96,29 @@ class DashboardScreen extends GetView<DashboardController> {
                   ],
                 ),
                 SizedBox(height: 10.h),
+
                 // Search Bar
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(8.r),
                   ),
-                  child: TextField(
-                    onChanged: controller.updateSearchQuery,
-                    decoration: InputDecoration(
-                      hintText: "Search clinics...",
-                      prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.all(12.w),
+                  child: CupertinoTextField(
+                    prefix: Padding(
+                      padding: EdgeInsets.only(left: 15.w),
+                      child: Icon(Icons.search, color: Colors.grey),
                     ),
+
+                    controller: controller.searchQuery,
+                    onChanged: (val) {
+                      controller.updateSearchQuery(val);
+                    },
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 10.w,
+                      vertical: 10.w,
+                    ),
+                    placeholder: "Search Clinics...",
+                    style: GoogleFonts.poppins(fontWeight: FontWeight.w300),
                   ),
                 ),
               ],
@@ -174,7 +186,7 @@ class DashboardScreen extends GetView<DashboardController> {
                 text: "My Pets",
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF1F2937),
+                color: AppColors.primary,
               ),
               GestureDetector(
                 onTap: () {
@@ -184,7 +196,7 @@ class DashboardScreen extends GetView<DashboardController> {
                   text: "View All",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: const Color(0xFF2563EB),
+                  color: AppColors.primary,
                 ),
               ),
             ],
@@ -271,8 +283,8 @@ class DashboardScreen extends GetView<DashboardController> {
                                 pet.image == null
                                     ? const LinearGradient(
                                       colors: [
-                                        Color(0xFFA855F7),
-                                        Color(0xFFEC4899),
+                                        AppColors.primary,
+                                        AppColors.primaryLight,
                                       ],
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
@@ -308,7 +320,7 @@ class DashboardScreen extends GetView<DashboardController> {
                               text: pet.name,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: const Color(0xFF1F2937),
+                              color: AppColors.primary,
                             ),
                             CustomText(
                               text: pet.species,

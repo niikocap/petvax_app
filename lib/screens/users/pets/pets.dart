@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:petvax/app/constants/colors.dart';
 import 'package:petvax/app/constants/strings.dart';
 import 'package:petvax/app/models/pet_model.dart';
 import 'package:petvax/app/widgets/custom_text.dart';
@@ -47,9 +48,7 @@ class Pets extends GetView<PetsController> {
           Container(
             width: double.infinity,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF2563EB), Color(0xFF4F46E5)],
-              ),
+              gradient: const LinearGradient(colors: AppColors.primaryGradient),
               borderRadius: BorderRadius.circular(16.r),
             ),
             padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),

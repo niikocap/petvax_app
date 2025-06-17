@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:petvax/app/components/logo.dart';
+import 'package:petvax/app/constants/colors.dart';
 import 'package:petvax/app/widgets/custom_text.dart';
 import '../../../app/widgets/custom_input.dart';
 import '../../../app/widgets/gradient_button.dart';
@@ -81,7 +82,7 @@ class SignInView extends StatelessWidget {
         GradientButton(
           text: 'Sign In',
           onPressed: controller.signIn,
-          gradientColors: [Colors.blue[600]!, Colors.purple[600]!],
+          gradientColors: AppColors.primaryGradient,
         ),
 
         SizedBox(height: 24.h),

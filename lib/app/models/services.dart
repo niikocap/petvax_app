@@ -37,7 +37,7 @@ class ServicesModel {
       clinicId: json['clinic_id'] as int,
       image:
           json['image'] ?? "https://picsum.photos/200/30${Random().nextInt(9)}",
-      isHomeService: (json['is_home_service'] ?? 0) == 0 ? false : true,
+      isHomeService: (json['home_service'] ?? 0) == 0 ? false : true,
     );
   }
 

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:petvax/app/constants/colors.dart';
 import 'package:petvax/app/widgets/custom_bottomsheet.dart';
 import 'package:petvax/app/widgets/custom_text.dart';
 import 'package:petvax/screens/users/clinics/clinic_cb.dart';
@@ -44,7 +45,7 @@ class Clinics extends GetView<ClinicsController> {
             Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFF2563EB), Color(0xFF9333EA)],
+                  colors: AppColors.primaryGradient,
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
@@ -227,6 +228,10 @@ class Clinics extends GetView<ClinicsController> {
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                     child: CupertinoTextField(
+                      prefix: Padding(
+                        padding: EdgeInsets.only(left: 15.w),
+                        child: Icon(Icons.search, color: Colors.grey),
+                      ),
                       suffix: Row(
                         children: [
                           GestureDetector(
@@ -268,20 +273,11 @@ class Clinics extends GetView<ClinicsController> {
                         controller.searchClinics(val);
                       },
                       padding: EdgeInsets.symmetric(
-                        horizontal: 15.w,
+                        horizontal: 10.w,
                         vertical: 10.w,
                       ),
                       placeholder: "Search Clinics...",
                       style: GoogleFonts.poppins(fontWeight: FontWeight.w300),
-                      // decoration: InputDecoration(
-                      //   hintStyle: GoogleFonts.poppins(
-                      //     fontWeight: FontWeight.w300,
-                      //   ),
-                      //   hintText: "Search clinics...",
-                      //   prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
-                      //   border: InputBorder.none,
-                      //   contentPadding: EdgeInsets.all(12.w),
-                      // ),
                     ),
                   ),
                 ],

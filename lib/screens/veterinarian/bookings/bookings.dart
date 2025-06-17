@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:petvax/app/constants/colors.dart';
+import 'package:petvax/app/constants/strings.dart';
 import 'package:petvax/app/models/appointment_model.dart';
+import 'package:petvax/screens/all/utility/settings_controller.dart';
 import 'package:petvax/screens/veterinarian/bookings/bookings_cb.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class VetBookingsScreen extends GetView<AppointmentsController> {
   const VetBookingsScreen({super.key});
@@ -22,10 +26,7 @@ class VetBookingsScreen extends GetView<AppointmentsController> {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
-                    const Color(0xFF2563EB).withOpacity(0.9),
-                    const Color(0xFF1E40AF),
-                  ],
+                  colors: AppColors.primaryGradient,
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -490,10 +491,105 @@ class AppointmentCard extends StatelessWidget {
                   ),
                 ],
               ),
+              SizedBox(height: 8.h),
+              Row(
+                children: [
+                  Container(
+                    width: 14.w,
+                    height: 14.w,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFDCFCE7),
+                      borderRadius: BorderRadius.circular(7.r),
+                    ),
+                    child: Center(
+                      child: Container(
+                        width: 6.w,
+                        height: 6.w,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF059669),
+                          borderRadius: BorderRadius.circular(3.r),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  Text(
+                    "See customer location.",
+                    style: GoogleFonts.poppins(
+                      fontSize: 14.sp,
+                      color: const Color(0xFF374151),
+                    ),
+                  ),
+                  SizedBox(width: 5.w),
+                  GestureDetector(
+                    onTap: () async {
+                      showDialog(
+                        context: Get.context!,
+                        barrierDismissible: false,
+                        builder:
+                            (context) => const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                      );
+                      var res = await GetConnect().get(
+                        "${AppStrings.baseUrl}homeservice/find/${appointment.id}",
+                      );
+                      var position = Get.find<Settings>().position!;
+                      Get.back();
+                      if (res.statusCode != 200) {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text(
+                                'Not Home Service',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              content: Text(
+                                'This booking is not a home service appointment.',
+                                style: GoogleFonts.poppins(fontSize: 14.sp),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text(
+                                    'OK',
+                                    style: GoogleFonts.poppins(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                        return;
+                      }
+                      final Uri googleMapsUrl = Uri.parse(
+                        'https://www.google.com/maps/dir/?api=1&origin=${position.latitude},${position.longitude}&destination=${res.body['data']['latitude']},${res.body['data']['longitude']}&travelmode=driving',
+                      );
+
+                      await launchUrl(
+                        googleMapsUrl,
+                        mode: LaunchMode.externalApplication,
+                      );
+                    },
+                    child: Icon(
+                      Icons.directions,
+                      color: AppColors.primary,
+                      size: 23.sp,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
 
-          SizedBox(height: 12.h),
+          SizedBox(height: 8.h),
 
           // Pet and Amount Info
           Container(

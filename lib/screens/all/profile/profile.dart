@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:petvax/app/components/custom_menu.dart';
+import 'package:petvax/app/constants/colors.dart';
+import 'package:petvax/app/constants/strings.dart';
 import 'package:petvax/screens/all/profile/profile_cb.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -21,7 +23,8 @@ class PetOwnerProfileScreen extends GetView<PetOwnerController> {
             child: Column(
               children: [
                 _buildHeader(),
-                _buildActionButtons(),
+                //_buildActionButtons(),
+                SizedBox(height: 20.h),
                 _buildContactInfo(),
                 _buildTabs(),
                 Obx(
@@ -47,7 +50,7 @@ class PetOwnerProfileScreen extends GetView<PetOwnerController> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.blue.shade500, Colors.purple.shade600],
+          colors: AppColors.primaryGradient,
         ),
       ),
       child: SafeArea(
@@ -585,7 +588,9 @@ class PetOwnerProfileScreen extends GetView<PetOwnerController> {
                         borderRadius: BorderRadius.circular(12.r),
                         image: DecorationImage(
                           image: NetworkImage(
-                            pet.image ?? 'https://placedog.net/500',
+                            pet.image != null
+                                ? (AppStrings.imageUrl + pet.image!)
+                                : 'https://placedog.net/500',
                           ),
                           fit: BoxFit.cover,
                         ),
@@ -626,28 +631,28 @@ class PetOwnerProfileScreen extends GetView<PetOwnerController> {
                             ),
                           ),
                           SizedBox(height: 3.h),
-                          Row(
-                            children: [
-                              Container(
-                                width: 8.w,
-                                height: 8.w,
-                                decoration: BoxDecoration(
-                                  color: Colors.green.shade500,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              SizedBox(width: 4.w),
-                              Text(
-                                'Vaccinated',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.grey.shade500,
-                                  fontSize: 12.sp,
-                                ),
-                              ),
-                              SizedBox(width: 16.w),
-                            ],
-                          ),
-                          SizedBox(height: 3.h),
+                          // Row(
+                          //   children: [
+                          //     Container(
+                          //       width: 8.w,
+                          //       height: 8.w,
+                          //       decoration: BoxDecoration(
+                          //         color: Colors.green.shade500,
+                          //         shape: BoxShape.circle,
+                          //       ),
+                          //     ),
+                          //     SizedBox(width: 4.w),
+                          //     Text(
+                          //       'Vaccinated',
+                          //       style: GoogleFonts.poppins(
+                          //         color: Colors.grey.shade500,
+                          //         fontSize: 12.sp,
+                          //       ),
+                          //     ),
+                          //     SizedBox(width: 16.w),
+                          //   ],
+                          // ),
+                          // SizedBox(height: 3.h),
                           // Text(
                           //   'Last booking: ${pet.lastBooking}',
                           //   style: GoogleFonts.poppins(

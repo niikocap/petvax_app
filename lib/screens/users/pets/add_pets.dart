@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:petvax/app/constants/colors.dart';
 import 'package:petvax/app/widgets/gradient_button.dart';
 
 import '../../../app/widgets/custom_input.dart';
@@ -33,7 +34,7 @@ class AddPetScreen extends StatelessWidget {
                   width: double.infinity,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFF2563EB), Color(0xFF4F46E5)],
+                      colors: AppColors.primaryGradient,
                     ),
                     borderRadius: BorderRadius.circular(16.r),
                   ),
@@ -219,7 +220,7 @@ class AddPetScreen extends StatelessWidget {
             color: Colors.white,
           ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF2563EB),
+            backgroundColor: AppColors.primary,
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.r),
@@ -440,7 +441,7 @@ class AddPetScreen extends StatelessWidget {
         onPressed: () {
           controller.submitForm();
         },
-        gradientColors: [Colors.blue[600]!, Colors.purple[600]!],
+        gradientColors: AppColors.primaryGradient,
       ),
     );
   }

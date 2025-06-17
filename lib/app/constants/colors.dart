@@ -18,4 +18,15 @@ class AppColors {
 
   // Gradients
   static const List<Color> primaryGradient = [primary, primaryLight];
+
+  // Status Colors
+  static const Color pending = Color(0xFFFFA726); // Orange
+  static const Color cancelled = Color(0xFF9E9E9E); // Grey
+  static const Color declined = Color(0xFFEF5350); // Red-ish
+  static const Color completed = Color(0xFF42A5F5); // Blue
+  static const Color confirmed = Color(0xFF66BB6A); // Green
+
+  // Feedback Colors
+  static const Color success = Color(0xFF4CAF50); // Green
+  static const Color error = Color(0xFFE53935); // Red
 }

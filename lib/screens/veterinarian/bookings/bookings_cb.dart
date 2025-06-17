@@ -27,7 +27,12 @@ class AppointmentsController extends GetxController {
   ];
 
   List<Appointment> get sortedAppointments {
-    List<Appointment> sorted = List.from(settings.appointments);
+    List<Appointment> sorted =
+        settings.appointments
+            .where(
+              (e) => !["completed", "declined", "cancelled"].contains(e.status),
+            )
+            .toList();
 
     sorted.sort((a, b) {
       dynamic aValue = _getSortValue(a, sortBy.value);

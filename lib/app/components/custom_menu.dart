@@ -1,6 +1,7 @@
 import 'package:circular_menu/circular_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:petvax/app/constants/colors.dart';
 
 class CustomMenu extends StatelessWidget {
   const CustomMenu({super.key});
@@ -13,7 +14,7 @@ class CustomMenu extends StatelessWidget {
 
       items: [
         CircularMenuItem(
-          color: Colors.deepPurple,
+          color: AppColors.primary,
           iconSize: 25,
           icon: Icons.home,
           onTap: () {
@@ -22,7 +23,7 @@ class CustomMenu extends StatelessWidget {
           },
         ),
         CircularMenuItem(
-          color: Colors.amber,
+          color: AppColors.primary,
           iconSize: 25,
           icon: Icons.calendar_month_rounded,
           onTap: () {
@@ -32,7 +33,7 @@ class CustomMenu extends StatelessWidget {
         CircularMenuItem(
           iconSize: 25,
           icon: Icons.medical_services,
-          color: Colors.pinkAccent,
+          color: AppColors.primary,
           onTap: () {
             Get.toNamed('/rule-base');
           },
@@ -40,7 +41,7 @@ class CustomMenu extends StatelessWidget {
         CircularMenuItem(
           iconSize: 25,
           icon: Icons.pets,
-          color: Colors.pink,
+          color: AppColors.primary,
           onTap: () {
             Get.toNamed('/pets');
           },
@@ -48,7 +49,7 @@ class CustomMenu extends StatelessWidget {
         CircularMenuItem(
           iconSize: 25,
           icon: Icons.person,
-          color: Colors.green,
+          color: AppColors.primary,
           onTap: () {
             Get.toNamed('/profile');
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:petvax/app/constants/colors.dart';
 import 'package:petvax/app/models/notification_model.dart';
 import 'package:petvax/screens/all/notification/notification_cb.dart';
 
@@ -40,7 +41,7 @@ class NotificationScreen extends GetView<NotificationController> {
                         child: Container(
                           padding: EdgeInsets.all(5),
                           decoration: BoxDecoration(
-                            color: Colors.teal,
+                            color: AppColors.primary,
                             borderRadius: BorderRadius.circular(10.r),
                           ),
                           child: Icon(

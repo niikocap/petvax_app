@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:petvax/app/mixins/snackbar.dart';
@@ -8,7 +9,7 @@ enum DashboardView { loading, loaded, error }
 class DashboardController extends GetxController with SnackBarMixin {
   Settings settings = Get.find<Settings>();
   var view = DashboardView.loading.obs;
-  var searchQuery = ''.obs;
+  var searchQuery = TextEditingController();
   Rx<bool> isTyped = false.obs;
   Position? position;
 
@@ -20,7 +21,7 @@ class DashboardController extends GetxController with SnackBarMixin {
   }
 
   void updateSearchQuery(String query) {
-    searchQuery(query);
+    searchQuery.text = query;
     if (!isTyped.value) {
       isTyped(true);
       Future.delayed(Duration(seconds: 2)).then((onValue) {

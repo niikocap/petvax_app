@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:petvax/app/constants/colors.dart';
 import 'package:petvax/app/constants/strings.dart';
 import 'package:petvax/app/models/services.dart';
 import 'package:petvax/app/widgets/custom_text.dart';
@@ -138,7 +139,7 @@ class Services extends GetView<ServicesController> {
                   onPressed: () {
                     controller.termsVisible(false);
                   },
-                  gradientColors: [Colors.teal, Colors.tealAccent],
+                  gradientColors: AppColors.primaryGradient,
                 ),
               ],
             ),
@@ -203,7 +204,7 @@ class Services extends GetView<ServicesController> {
                                   child: Container(
                                     padding: EdgeInsets.all(7.5.w),
                                     decoration: BoxDecoration(
-                                      color: Colors.teal,
+                                      color: AppColors.primary,
                                       borderRadius: BorderRadius.circular(99),
                                     ),
 
@@ -271,7 +272,7 @@ class Services extends GetView<ServicesController> {
                       width: 30.w,
                       color:
                           controller.activeIndex.value == 0
-                              ? Colors.teal
+                              ? AppColors.primary
                               : Colors.transparent,
                     ),
                   ],
@@ -289,7 +290,7 @@ class Services extends GetView<ServicesController> {
                       width: 30.w,
                       color:
                           controller.activeIndex.value == 1
-                              ? Colors.teal
+                              ? AppColors.primary
                               : Colors.transparent,
                     ),
                   ],
@@ -307,7 +308,7 @@ class Services extends GetView<ServicesController> {
                       width: 30.w,
                       color:
                           controller.activeIndex.value == 2
-                              ? Colors.teal
+                              ? AppColors.primary
                               : Colors.transparent,
                     ),
                   ],
@@ -422,7 +423,7 @@ class Services extends GetView<ServicesController> {
                                       vertical: 3.h,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: Colors.teal,
+                                      color: AppColors.primary,
                                       borderRadius: BorderRadius.circular(10.r),
                                     ),
                                     child: CustomText(
@@ -480,12 +481,10 @@ class Services extends GetView<ServicesController> {
                                       controller.book(
                                         service.id,
                                         service.price,
+                                        service.isHomeService,
                                       );
                                     },
-                                    gradientColors: [
-                                      Colors.teal,
-                                      Colors.tealAccent,
-                                    ],
+                                    gradientColors: AppColors.primaryGradient,
                                   ),
                                 ],
                               ),

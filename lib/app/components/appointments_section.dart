@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:petvax/app/constants/colors.dart';
 import 'package:petvax/app/models/appointment_model.dart';
 import 'package:petvax/app/widgets/gradient_button.dart';
 import 'package:petvax/screens/all/utility/settings_controller.dart';
@@ -50,12 +51,6 @@ class AppointmentsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final gradientColors = [
-      [const Color(0xFF3B82F6), const Color(0xFF9333EA)],
-      [const Color(0xFF10B981), const Color(0xFF059669)],
-      [const Color(0xFFEC4899), const Color(0xFFDC2626)],
-    ];
-
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -80,7 +75,7 @@ class AppointmentsSection extends StatelessWidget {
                     text: "Recent Appointments",
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF1F2937),
+                    color: AppColors.primary,
                   ),
                   GestureDetector(
                     onTap: () {
@@ -90,7 +85,7 @@ class AppointmentsSection extends StatelessWidget {
                       text: "View All",
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: const Color(0xFF2563EB),
+                      color: AppColors.primary,
                     ),
                   ),
                 ],
@@ -110,7 +105,17 @@ class AppointmentsSection extends StatelessWidget {
                     : appointments.length,
             itemBuilder: (context, index) {
               final appointment = appointments[index];
-              final colors = gradientColors[index % gradientColors.length];
+              final colors =
+                  appointment.status.toLowerCase() == 'confirmed'
+                      ? [AppColors.primary, AppColors.primary.withOpacity(0.7)]
+                      : appointment.status.toLowerCase() == 'pending'
+                      ? [AppColors.pending, AppColors.pending.withOpacity(0.7)]
+                      : appointment.status.toLowerCase() == 'completed'
+                      ? [AppColors.success, AppColors.success.withOpacity(0.7)]
+                      : [
+                        AppColors.cancelled,
+                        AppColors.cancelled.withOpacity(0.7),
+                      ];
 
               return Container(
                 margin: EdgeInsets.only(bottom: 16.h),
