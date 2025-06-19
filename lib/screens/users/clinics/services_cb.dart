@@ -109,6 +109,20 @@ class ServicesController extends GetxController with SnackBarMixin {
       barrierDismissible: false,
     );
 
+    var minutes = int.parse(selectedTime.value.split(":")[1]);
+    var hour =
+        selectedAmPm.value == "PM"
+            ? int.parse(selectedTime.value.split(":")[0]) + 12
+            : int.parse(selectedTime.value.split(":")[0]);
+    var dateTime =
+        DateTime(
+          selectedDate.value.year,
+          selectedDate.value.month,
+          selectedDate.value.day,
+          hour,
+          minutes,
+        ).toIso8601String();
+
     var body = {
       "clinic_id": clinic!.id,
       "service_id": id,
@@ -120,15 +134,8 @@ class ServicesController extends GetxController with SnackBarMixin {
               .id,
       "client_id": settings.user!.id,
       "staff_id": null,
-      "appointment_datetime":
-          DateTime(
-            selectedDate.value.year,
-            selectedDate.value.month,
-            selectedDate.value.day,
-            selectedAmPm.value == "PM"
-                ? selectedHour.value + 12
-                : selectedHour.value,
-          ).toIso8601String(),
+      "appointment_datetime": dateTime,
+
       "notes": "any",
       "total_amount": amount,
       "status": "pending",
@@ -309,7 +316,7 @@ class ServicesController extends GetxController with SnackBarMixin {
                           onChanged: (value) async {
                             if (value != null) {
                               selectedTime.value = value;
-                              await checkSlots();
+                              await checkSlots(id);
                             }
                           },
                         ),
@@ -1010,7 +1017,7 @@ class ServicesController extends GetxController with SnackBarMixin {
     );
   }
 
-  checkSlots() async {
+  checkSlots(id) async {
     Get.dialog(
       const Center(child: CircularProgressIndicator()),
       barrierDismissible: false,
@@ -1018,7 +1025,7 @@ class ServicesController extends GetxController with SnackBarMixin {
 
     var res = await connect.post('check-slot', {
       "clinic_id": clinic!.id,
-      "service_id": services[activeIndex.value].id,
+      "service_id": id,
       "time": "${selectedTime.value} $selectedAmPm",
       "date": DateFormat('yyyy-MM-dd').format(selectedDate.value),
     });
